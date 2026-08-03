@@ -14,7 +14,7 @@
 
 ## Comments
 
-- 2026-08-03 实现完成。
+- 2026-08-03 实现完成，提交 e3f28c0。
 - better-auth 1.6.25 + Drizzle adapter（sqlite）+ username 插件；登录框单字段按是否含 `@` 分流到邮箱/用户名登录。
 - 首个真实迁移 `drizzle/0000_ancient_psylocke.sql`：user/session/account/verification 四表，列名 snake_case，drizzle 属性 camelCase（adapter 按 camelCase 查找）；users 表含 username（唯一）与 role（默认 user，本期仅备用）。
 - 中文错误提示在前端按 better-auth 错误码映射（`src/lib/auth-errors.ts`），如 USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL → 该邮箱已被注册、USERNAME_IS_ALREADY_TAKEN → 该用户名已被占用。
