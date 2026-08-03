@@ -6,9 +6,16 @@
 
 **Status:** ready-for-agent
 
-- [ ] `bun run dev` 启动应用，首页正常渲染（中文界面）
-- [ ] Drizzle schema 与迁移工具接通；SQLite 数据库文件位于数据目录，路径可由环境变量覆盖
-- [ ] better-auth 依赖安装并预留接入位置（认证在下一 ticket 实现）
-- [ ] Playwright 配置 webServer 启动应用，E2E 使用一次性测试库（每次运行重建 + 自动迁移）
-- [ ] 一个冒烟 E2E 断言首页渲染
-- [ ] 单条命令（如 `bun run test:e2e`）跑通全部 E2E
+- [x] `bun run dev` 启动应用，首页正常渲染（中文界面）
+- [x] Drizzle schema 与迁移工具接通；SQLite 数据库文件位于数据目录，路径可由环境变量覆盖
+- [x] better-auth 依赖安装并预留接入位置（认证在下一 ticket 实现）
+- [x] Playwright 配置 webServer 启动应用，E2E 使用一次性测试库（每次运行重建 + 自动迁移）
+- [x] 一个冒烟 E2E 断言首页渲染
+- [x] 单条命令（如 `bun run test:e2e`）跑通全部 E2E
+
+## Comments
+
+- 2026-08-03 实现完成，提交 0637dac。
+- 与用户确认的偏差：本 ticket schema 保持为空（不预置 better-auth 表），迁移接缝就位但零迁移，真实迁移随 ticket 02 引入。
+- better-sqlite3 v13 与 bun 运行时不兼容（NAPI 崩溃）；`bun run dev` 实际经 Node 运行 Next，应用侧不受影响，碰库脚本一律 `node` 执行（已记入 AGENTS.md）。
+- E2E 专用 3100 端口（`dev:e2e`），避免与本地 3000 dev server 混用数据库。
