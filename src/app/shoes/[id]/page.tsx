@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { FootSummaryLine } from "@/components/reviews/foot-summary";
+import { ReviewCard } from "@/components/reviews/review-card";
 import { Button } from "@/components/ui/button";
 import { listShoeReviews, getReviewByUserAndShoe } from "@/lib/reviews";
-import { formatSizeDelta } from "@/lib/reviews-schema";
 import { getSession } from "@/lib/session";
 import { getShoe } from "@/lib/shoes";
 
@@ -126,31 +125,7 @@ export default async function ShoeDetailPage({
         ) : (
           <ul className="mt-4 space-y-4">
             {reviews.map((item) => (
-              <li key={item.id} className="rounded-xl border bg-card p-5">
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-semibold">
-                    {item.authorUsername ?? item.authorName}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    综合 {item.overall} 分 · {item.sizeTried} {item.sizeSystem} ·{" "}
-                    {formatSizeDelta(item.sizeDelta)}
-                  </p>
-                </div>
-                <div className="mt-1">
-                  <FootSummaryLine profile={item} />
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {item.content.length > 100
-                    ? `${item.content.slice(0, 100)}…`
-                    : item.content}
-                </p>
-                <Link
-                  href={`/reviews/${item.id}`}
-                  className="mt-3 inline-block text-sm hover:underline"
-                >
-                  查看完整测评 →
-                </Link>
-              </li>
+              <ReviewCard key={item.id} review={item} showShoe={false} />
             ))}
           </ul>
         )}

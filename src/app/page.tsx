@@ -1,41 +1,56 @@
-const FEATURES = [
-  {
-    title: "鞋款目录",
-    description: "收录主流品牌攀岩鞋，按场景、硬度、楦型筛选与搜索。",
-  },
-  {
-    title: "脚型档案",
-    description: "记录脚长、脚宽、足弓、脚背等脚型数据，让反馈更有参考价值。",
-  },
-  {
-    title: "结构化测评",
-    description: "七维评分、合身度反馈与尺码偏移建议，选码不再盲试。",
-  },
-];
+import Link from "next/link";
+import { ReviewCard } from "@/components/reviews/review-card";
+import { Button } from "@/components/ui/button";
+import { listLatestReviews } from "@/lib/reviews";
+
+const LATEST_LIMIT = 8;
 
 export default function Home() {
+  const latestReviews = listLatestReviews(LATEST_LIMIT);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-12 px-6 py-16 text-center">
-      <section className="space-y-4">
+    <main className="mx-auto w-full max-w-5xl px-6 py-12">
+      <section className="space-y-4 text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           攀岩鞋试穿体验平台
         </h1>
         <p className="text-lg text-muted-foreground">
           记录真实试穿体验，按脚型与场景找到合脚的那双鞋
         </p>
+        <div className="flex justify-center gap-3 pt-2">
+          <Button asChild>
+            <Link href="/shoes">浏览鞋库</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/register">注册并记录你的脚型</Link>
+          </Button>
+        </div>
       </section>
-      <section className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
-        {FEATURES.map((feature) => (
-          <div
-            key={feature.title}
-            className="rounded-xl border bg-card p-6 text-left shadow-sm"
-          >
-            <h2 className="font-semibold">{feature.title}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {feature.description}
-            </p>
-          </div>
-        ))}
+
+      <section className="mt-14">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold">最新测评</h2>
+          {latestReviews.length > 0 ? (
+            <Link
+              href="/shoes"
+              className="text-sm text-muted-foreground hover:underline"
+            >
+              去鞋库找一双 →
+            </Link>
+          ) : null}
+        </div>
+
+        {latestReviews.length === 0 ? (
+          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+            还没有测评。注册后试穿一双鞋，来写下第一条测评吧。
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-4">
+            {latestReviews.map((item) => (
+              <ReviewCard key={item.id} review={item} />
+            ))}
+          </ul>
+        )}
       </section>
     </main>
   );

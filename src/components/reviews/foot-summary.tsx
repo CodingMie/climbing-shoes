@@ -1,9 +1,9 @@
 export type FootSummaryData = {
-  footWidth: string | null;
-  arch: string | null;
-  instep: string | null;
-  heel: string | null;
-  bunion: string | null;
+  footWidth?: string | null;
+  arch?: string | null;
+  instep?: string | null;
+  heel?: string | null;
+  bunion?: string | null;
 };
 
 export function FootSummaryLine({ profile }: { profile: FootSummaryData }) {
@@ -21,6 +21,22 @@ export function FootSummaryLine({ profile }: { profile: FootSummaryData }) {
         .filter((item) => item.value)
         .map((item) => `${item.label} ${item.value}`)
         .join(" · ")}
+    </p>
+  );
+}
+
+export type FootStatsData = {
+  footLength?: number | null;
+  streetSize?: number | null;
+  footShape?: string | null;
+};
+
+export function FootStatsLine({ profile }: { profile: FootStatsData }) {
+  if (!profile.footLength) return null;
+  return (
+    <p className="text-xs text-muted-foreground">
+      脚长 {profile.footLength} 毫米 · 日常鞋码 EU {profile.streetSize}
+      {profile.footShape ? ` · 脚型 ${profile.footShape}` : ""}
     </p>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteReviewAction } from "@/app/reviews/actions";
-import { FootSummaryLine } from "@/components/reviews/foot-summary";
+import { FootSummaryLine, FootStatsLine } from "@/components/reviews/foot-summary";
 import { Button } from "@/components/ui/button";
 import { RATING_DIMENSIONS } from "@/db/schema";
 import { parsePositiveInt } from "@/lib/params";
@@ -74,7 +74,17 @@ export default async function ReviewDetailPage({
       <div className="mt-4">
         <p className="text-sm text-muted-foreground">{shoeTitle}</p>
         <h1 className="mt-1 text-2xl font-bold">
-          {authorName} 的测评
+          {review.authorUsername ? (
+            <Link
+              href={`/u/${review.authorUsername}`}
+              className="hover:underline"
+            >
+              {authorName}
+            </Link>
+          ) : (
+            authorName
+          )}{" "}
+          的测评
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           发布于 {createdAt}
@@ -186,12 +196,9 @@ export default async function ReviewDetailPage({
         <div className="mt-1">
           <FootSummaryLine profile={review} />
         </div>
-        {review.footLength ? (
-          <p className="mt-1 text-xs text-muted-foreground">
-            脚长 {review.footLength} 毫米 · 日常鞋码 EU {review.streetSize}
-            {review.footShape ? ` · 脚型 ${review.footShape}` : ""}
-          </p>
-        ) : null}
+        <div className="mt-1">
+          <FootStatsLine profile={review} />
+        </div>
       </section>
     </main>
   );

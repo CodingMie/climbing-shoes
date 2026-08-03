@@ -54,6 +54,60 @@ export function listShoeReviews(shoeId: number) {
 
 export type ShoeReviewCard = ReturnType<typeof listShoeReviews>[number];
 
+const shoeColumns = {
+  shoeId: shoe.id,
+  shoeModel: shoe.model,
+  shoeVariant: shoe.variant,
+  brandName: brand.name,
+};
+
+const reviewCardColumns = {
+  id: review.id,
+  overall: review.overall,
+  sizeTried: review.sizeTried,
+  sizeSystem: review.sizeSystem,
+  sizeDelta: review.sizeDelta,
+  content: review.content,
+  createdAt: review.createdAt,
+};
+
+export function listLatestReviews(limit: number) {
+  return getDb()
+    .select({
+      ...reviewCardColumns,
+      ...shoeColumns,
+      ...authorColumns,
+      ...footSummaryColumns,
+    })
+    .from(review)
+    .innerJoin(user, eq(review.userId, user.id))
+    .leftJoin(footProfile, eq(review.userId, footProfile.userId))
+    .innerJoin(shoe, eq(review.shoeId, shoe.id))
+    .innerJoin(brand, eq(shoe.brandId, brand.id))
+    .where(eq(shoe.status, "approved"))
+    .orderBy(desc(review.createdAt))
+    .limit(limit)
+    .all();
+}
+
+export type LatestReviewCard = ReturnType<typeof listLatestReviews>[number];
+
+export function listUserReviews(userId: string) {
+  return getDb()
+    .select({
+      ...reviewCardColumns,
+      ...shoeColumns,
+    })
+    .from(review)
+    .innerJoin(shoe, eq(review.shoeId, shoe.id))
+    .innerJoin(brand, eq(shoe.brandId, brand.id))
+    .where(and(eq(review.userId, userId), eq(shoe.status, "approved")))
+    .orderBy(desc(review.createdAt))
+    .all();
+}
+
+export type UserReviewCard = ReturnType<typeof listUserReviews>[number];
+
 export function getReviewDetail(id: number) {
   const row = getDb()
     .select({
