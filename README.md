@@ -6,7 +6,7 @@
 
 - Next.js 15（App Router）+ TypeScript + Tailwind CSS v4 + shadcn/ui
 - Drizzle ORM + better-sqlite3（SQLite）
-- better-auth（依赖已安装，认证逻辑由后续 ticket 接入）
+- better-auth（用户名/邮箱 + 密码认证，会话存库）
 - Playwright E2E（唯一测试接缝）
 - 包管理：bun
 
@@ -32,9 +32,10 @@ bun run test:e2e
 
 单条命令完成：重建一次性测试库 `data/e2e.db`（自动应用迁移）→ 在 3100 端口启动专用 dev server → 运行全部 E2E。
 
-E2E 是唯一测试接缝：只断言外部可见行为（页面内容、跳转），不断言内部实现。
+E2E 是唯一测试接缝：只断言外部可见行为（页面内容、跳转、数据库最终状态），不断言内部实现（组件结构、函数调用、样式细节）。
 
 ## 约定
 
 - 数据库脚本与 Playwright 均运行在 Node 运行时；better-sqlite3 与 bun 运行时不兼容，不要用 bun 直接执行碰数据库的脚本。
-- better-auth 依赖已安装；服务端配置（`src/lib/auth.ts`）与路由（`src/app/api/auth/[...all]/route.ts`）将在下一 ticket 创建。
+- 认证：better-auth 服务端配置在 `src/lib/auth.ts`，路由 `src/app/api/auth/[...all]/route.ts`，客户端 `src/lib/auth-client.ts`；受保护页面用 `src/lib/session.ts` 的 `requireUser()`（未登录重定向 `/login`）。
+- 环境变量：生产环境必须设置 `BETTER_AUTH_SECRET`（≥32 字符随机串）；`BETTER_AUTH_URL` 可选（默认按请求 Host 动态解析，dev 允许 localhost:3000/3100）。
