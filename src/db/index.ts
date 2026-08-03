@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import Database from "better-sqlite3";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
-import { databasePath } from "./path";
-import * as schema from "./schema";
+import { databasePath } from "./path.ts";
+import * as schema from "./schema.ts";
 
 export type Db = BetterSQLite3Database<typeof schema>;
 

@@ -1,4 +1,60 @@
+import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const SHOE_SCENARIOS = [
+  "馆内全能",
+  "抱石",
+  "难度",
+  "传统多段",
+  "竞技",
+] as const;
+export const SHOE_STIFFNESS = ["软", "中", "硬"] as const;
+export const SHOE_WIDTHS = ["窄", "中", "宽"] as const;
+export const SHOE_LEVELS = ["入门", "进阶", "极致性能"] as const;
+export const SHOE_DOWNTURNS = ["自然", "适度", "激进"] as const;
+export const SHOE_CLOSURES = ["魔术贴", "系带", "套脚"] as const;
+export const SHOE_STATUSES = ["pending", "approved", "rejected"] as const;
+
+export type ShoeScenario = (typeof SHOE_SCENARIOS)[number];
+
+export const brand = sqliteTable("brand", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  logo: text("logo"),
+  description: text("description"),
+});
+
+export const shoe = sqliteTable("shoe", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  brandId: integer("brand_id")
+    .notNull()
+    .references(() => brand.id),
+  model: text("model").notNull(),
+  variant: text("variant"),
+  price: integer("price").notNull(),
+  scenarios: text("scenarios", { mode: "json" })
+    .$type<ShoeScenario[]>()
+    .notNull(),
+  stiffness: text("stiffness", { enum: SHOE_STIFFNESS }).notNull(),
+  width: text("width", { enum: SHOE_WIDTHS }).notNull(),
+  level: text("level", { enum: SHOE_LEVELS }).notNull(),
+  downturn: text("downturn", { enum: SHOE_DOWNTURNS }).notNull(),
+  closure: text("closure", { enum: SHOE_CLOSURES }).notNull(),
+  material: text("material"),
+  images: text("images", { mode: "json" }).$type<string[]>().notNull(),
+  status: text("status", { enum: SHOE_STATUSES })
+    .notNull()
+    .default("pending"),
+  submittedBy: text("submitted_by"),
+  reviewedBy: text("reviewed_by"),
+  rejectReason: text("reject_reason"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),

@@ -11,6 +11,7 @@
 - better-sqlite3 与 bun 运行时不兼容（NAPI 崩溃）；碰数据库的脚本一律用 `node` 执行（Next 服务本身跑在 Node 上，不受影响）。
 - E2E（Playwright）是唯一测试接缝：`bun run test:e2e` 单条命令，使用一次性测试库（重建 + 自动迁移）。详见 README。
 - 类型检查：`bun run typecheck`；lint：`bun run lint`。
+- 开发流程：不用 TDD、不先写测试，直接实现功能（UI 将重构，测试暂缓）。完成改动后仍跑 `bun run typecheck` + `bun run lint`；改动涉及已有 E2E 覆盖的行为时跑 `bun run test:e2e` 确认没弄坏。
 
 ## Agent skills
 

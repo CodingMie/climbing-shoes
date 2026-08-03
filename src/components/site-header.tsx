@@ -11,7 +11,10 @@ export async function SiteHeader() {
           攀岩鞋试穿体验平台
         </Link>
         {session ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <Link href="/shoes" className="text-sm hover:underline">
+              鞋库
+            </Link>
             <span className="text-sm text-muted-foreground">
               {session.user.username ?? session.user.name}
             </span>
@@ -19,6 +22,9 @@ export async function SiteHeader() {
           </div>
         ) : (
           <nav className="flex items-center gap-4 text-sm">
+            <Link href="/shoes" className="hover:underline">
+              鞋库
+            </Link>
             <Link href="/login" className="hover:underline">
               登录
             </Link>

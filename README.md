@@ -23,6 +23,7 @@ bun run dev          # http://localhost:3000
 - SQLite 文件默认位于 `data/app.db`，可用环境变量 `DATABASE_PATH` 覆盖。
 - `bun run db:generate`：schema 变更后生成迁移（输出到 `drizzle/`，随代码提交）。
 - `bun run db:migrate`：对 `DATABASE_PATH` 指向的库应用迁移。
+- `bun run db:seed`：重建品牌/鞋款种子数据（8 品牌、18 鞋款，全部 approved），并在 `public/seed/` 生成占位图。会清空 brand/shoe 表，仅用于开发库。
 
 ## 测试
 

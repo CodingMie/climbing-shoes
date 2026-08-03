@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/migrate.ts",
+    "db:seed": "node scripts/seed.ts",
     "test:e2e": "node scripts/reset-e2e-db.ts && playwright test"
   },
   "dependencies": {
