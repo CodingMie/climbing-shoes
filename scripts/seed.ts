@@ -277,9 +277,11 @@ function brandHue(name: string): number {
 }
 
 function writeSeedImage(shoe: SeedShoe): string {
-  const slug = `${slugify(shoe.brand)}-${slugify(shoe.model)}${
-    shoe.variant ? `-${slugify(shoe.variant)}` : ""
-  }`;
+  const slug = [shoe.brand, shoe.model, shoe.variant]
+    .filter((part): part is string => Boolean(part))
+    .map(slugify)
+    .filter(Boolean)
+    .join("-");
   const publicPath = `/seed/${slug}.svg`;
   const filePath = path.join(process.cwd(), "public", publicPath.slice(1));
   const hue = brandHue(shoe.brand);
