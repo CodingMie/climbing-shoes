@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 攀岩鞋试穿体验平台
 
-## Getting Started
+攀岩鞋试穿体验记录与分享平台（中文社区，自部署）。
 
-First, run the development server:
+## 技术栈
+
+- Next.js 15（App Router）+ TypeScript + Tailwind CSS v4 + shadcn/ui
+- Drizzle ORM + better-sqlite3（SQLite）
+- better-auth（依赖已安装，认证逻辑由后续 ticket 接入）
+- Playwright E2E（唯一测试接缝）
+- 包管理：bun
+
+## 开发
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bunx playwright install chromium
+bun run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 数据库
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- SQLite 文件默认位于 `data/app.db`，可用环境变量 `DATABASE_PATH` 覆盖。
+- `bun run db:generate`：schema 变更后生成迁移（输出到 `drizzle/`，随代码提交）。
+- `bun run db:migrate`：对 `DATABASE_PATH` 指向的库应用迁移。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 测试
 
-## Learn More
+```bash
+bun run test:e2e
+```
 
-To learn more about Next.js, take a look at the following resources:
+单条命令完成：重建一次性测试库 `data/e2e.db`（自动应用迁移）→ 在 3100 端口启动专用 dev server → 运行全部 E2E。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+E2E 是唯一测试接缝：只断言外部可见行为（页面内容、跳转），不断言内部实现。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 约定
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 数据库脚本与 Playwright 均运行在 Node 运行时；better-sqlite3 与 bun 运行时不兼容，不要用 bun 直接执行碰数据库的脚本。
+- better-auth 依赖已安装；服务端配置（`src/lib/auth.ts`）与路由（`src/app/api/auth/[...all]/route.ts`）将在下一 ticket 创建。
