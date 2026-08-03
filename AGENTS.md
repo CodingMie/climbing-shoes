@@ -13,6 +13,26 @@
 - 类型检查：`bun run typecheck`；lint：`bun run lint`。
 - 开发流程：不用 TDD、不先写测试，直接实现功能（UI 将重构，测试暂缓）。完成改动后仍跑 `bun run typecheck` + `bun run lint`；改动涉及已有 E2E 覆盖的行为时跑 `bun run test:e2e` 确认没弄坏。
 
+## 代码地图（定位开发位置，避免全库扫描）
+
+分层：页面 `src/app/<route>/page.tsx` → 服务端写操作放同目录 `actions.ts`（server action）→ 数据读写 `src/lib/*.ts` → 表与枚举常量 `src/db/schema.ts`。
+
+- 受保护页面用 `src/lib/session.ts` 的 `requireUser()`；会话/认证在 `src/lib/auth.ts`（服务端）与 `src/lib/auth-client.ts`（客户端），路由 `src/app/api/auth/[...all]/route.ts`。
+- 现有功能：鞋库 `src/lib/shoes.ts` + `src/app/shoes/`；脚型档案 `src/lib/foot-profile.ts`、`src/lib/foot-profile-schema.ts` + `src/app/settings/profile/`。
+- 校验 schema（zod，中文提示）放 `src/lib/<feature>-schema.ts`，保持 client-safe（不 import `@/db`），前后端共用；DB 读写单独放 `src/lib/<feature>.ts`。
+- 客户端组件（`"use client"`）不得 import `@/db` 或 better-sqlite3；枚举常量（`SHOE_*`/`FOOT_*`）定义在 `src/db/schema.ts`。
+- UI 组件：shadcn 原语在 `src/components/ui/`，业务组件在 `src/components/<feature>/`；表单参照 `register-form.tsx` 的模式（zod 前端校验 + 单条 `role="alert"` 中文错误）。
+- 表名单数、列 snake_case、drizzle 属性 camelCase；迁移输出到 `drizzle/` 并随代码提交，`bun run db:generate` 生成、`bun run db:migrate` 应用。
+- E2E 在 `e2e/<feature>.spec.ts`（断言外部可见行为）；需求与实现备注在 `.scratch/climbing-shoe-platform/issues/`（已完成 ticket 的 Comments 含落地细节）。
+- 领域术语以根目录 `CONTEXT.md` 为准（如「宽度楦型」是鞋、「脚宽窄」是脚，勿混用）。
+
+典型任务路径：
+
+- 加/改页面功能 → 对应 `src/app/<route>/page.tsx`（+ `actions.ts`）与 `src/components/<feature>/`。
+- 加表/字段 → 改 `src/db/schema.ts` → `bun run db:generate && bun run db:migrate` → 更新 `src/lib/<feature>.ts`。
+- 加校验 → 在 `src/lib/<feature>-schema.ts` 定义 zod schema，action 与表单共用。
+- 找某功能的既有实现 → 先读对应 ticket 的 Comments，再到 `src/lib/` 与 `src/app/`。
+
 ## Agent skills
 
 ### Issue tracker
@@ -25,4 +45,4 @@ Issues 与 spec 以 markdown 文件存放在 `.scratch/`（本地 Markdown track
 
 ### Domain docs
 
-Single-context 布局：根目录 `CONTEXT.md` + `docs/adr/`（尚不存在时静默跳过）。See `docs/agents/domain.md`.
+Single-context 布局：根目录 `CONTEXT.md`（领域词汇表，已建立）+ `docs/adr/`（尚不存在时静默跳过）。See `docs/agents/domain.md`.
