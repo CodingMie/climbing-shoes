@@ -15,9 +15,12 @@ export async function SiteHeader() {
             <Link href="/shoes" className="text-sm hover:underline">
               鞋库
             </Link>
-            <span className="text-sm text-muted-foreground">
+            <Link
+              href="/settings/profile"
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+            >
               {session.user.username ?? session.user.name}
-            </span>
+            </Link>
             <LogoutButton />
           </div>
         ) : (
