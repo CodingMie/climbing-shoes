@@ -2,11 +2,11 @@
 
 import { getSession } from "@/lib/session";
 import {
-  firstIssueMessage,
   footProfileRawValues,
   footProfileSchema,
 } from "@/lib/foot-profile-schema";
 import { upsertFootProfile } from "@/lib/foot-profile";
+import { firstIssueMessage } from "@/lib/zod-helpers";
 
 export type SaveFootProfileResult = { ok: boolean; error?: string };
 

@@ -18,8 +18,8 @@
 分层：页面 `src/app/<route>/page.tsx` → 服务端写操作放同目录 `actions.ts`（server action）→ 数据读写 `src/lib/*.ts` → 表与枚举常量 `src/db/schema.ts`。
 
 - 受保护页面用 `src/lib/session.ts` 的 `requireUser()`；会话/认证在 `src/lib/auth.ts`（服务端）与 `src/lib/auth-client.ts`（客户端），路由 `src/app/api/auth/[...all]/route.ts`。
-- 现有功能：鞋库 `src/lib/shoes.ts` + `src/app/shoes/`；脚型档案 `src/lib/foot-profile.ts`、`src/lib/foot-profile-schema.ts` + `src/app/settings/profile/`。
-- 校验 schema（zod，中文提示）放 `src/lib/<feature>-schema.ts`，保持 client-safe（不 import `@/db`），前后端共用；DB 读写单独放 `src/lib/<feature>.ts`。
+- 现有功能：鞋库 `src/lib/shoes.ts` + `src/app/shoes/`；脚型档案 `src/lib/foot-profile.ts`、`src/lib/foot-profile-schema.ts` + `src/app/settings/profile/`；测评 `src/lib/reviews.ts`、`src/lib/reviews-schema.ts` + `src/app/reviews/`（new/[id]/[id]/edit，actions 同目录）。
+- 校验 schema（zod，中文提示）放 `src/lib/<feature>-schema.ts`，保持 client-safe（不 import `@/db`），前后端共用；DB 读写单独放 `src/lib/<feature>.ts`。通用小工具：`src/lib/zod-helpers.ts`（zod 首条错误消息）、`src/lib/params.ts`（路由/查询参数解析）、`src/lib/shoes.ts` 的 `formatShoeTitle`。
 - 客户端组件（`"use client"`）不得 import `@/db` 或 better-sqlite3；枚举常量（`SHOE_*`/`FOOT_*`）定义在 `src/db/schema.ts`。
 - UI 组件：shadcn 原语在 `src/components/ui/`，业务组件在 `src/components/<feature>/`；表单参照 `register-form.tsx` 的模式（zod 前端校验 + 单条 `role="alert"` 中文错误）。
 - 表名单数、列 snake_case、drizzle 属性 camelCase；迁移输出到 `drizzle/` 并随代码提交，`bun run db:generate` 生成、`bun run db:migrate` 应用。

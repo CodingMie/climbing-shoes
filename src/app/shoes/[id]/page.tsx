@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { FootSummaryLine } from "@/components/reviews/foot-summary";
+import { Button } from "@/components/ui/button";
+import { listShoeReviews, getReviewByUserAndShoe } from "@/lib/reviews";
+import { formatSizeDelta } from "@/lib/reviews-schema";
+import { getSession } from "@/lib/session";
 import { getShoe } from "@/lib/shoes";
 
 type RouteParams = { id: string };
@@ -31,6 +36,12 @@ export default async function ShoeDetailPage({
 }) {
   const shoe = await findShoe(params);
   if (!shoe) notFound();
+
+  const session = await getSession();
+  const reviews = listShoeReviews(shoe.id);
+  const myReview = session
+    ? getReviewByUserAndShoe(session.user.id, shoe.id)
+    : null;
 
   const specs: { label: string; value: string }[] = [
     { label: "使用场景", value: shoe.scenarios.join("、") },
@@ -88,8 +99,62 @@ export default async function ShoeDetailPage({
               </div>
             ))}
           </dl>
+
+          <div className="mt-6">
+            {myReview ? (
+              <Button asChild variant="outline">
+                <Link href={`/reviews/${myReview.id}/edit`}>编辑我的测评</Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link href={`/reviews/new?shoe=${shoe.id}`}>写测评</Link>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
+
+      <section className="mt-12">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold">测评（{reviews.length}）</h2>
+        </div>
+
+        {reviews.length === 0 ? (
+          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+            还没有测评。试穿过后来分享你的体验吧。
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-4">
+            {reviews.map((item) => (
+              <li key={item.id} className="rounded-xl border bg-card p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-sm font-semibold">
+                    {item.authorUsername ?? item.authorName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    综合 {item.overall} 分 · {item.sizeTried} {item.sizeSystem} ·{" "}
+                    {formatSizeDelta(item.sizeDelta)}
+                  </p>
+                </div>
+                <div className="mt-1">
+                  <FootSummaryLine profile={item} />
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {item.content.length > 100
+                    ? `${item.content.slice(0, 100)}…`
+                    : item.content}
+                </p>
+                <Link
+                  href={`/reviews/${item.id}`}
+                  className="mt-3 inline-block text-sm hover:underline"
+                >
+                  查看完整测评 →
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }

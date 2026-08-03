@@ -1,0 +1,32 @@
+CREATE TABLE `review` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`user_id` text NOT NULL,
+	`shoe_id` integer NOT NULL,
+	`size_tried` real NOT NULL,
+	`size_system` text NOT NULL,
+	`size_delta` real NOT NULL,
+	`wrap` integer NOT NULL,
+	`comfort` integer NOT NULL,
+	`precision` integer NOT NULL,
+	`sensitivity` integer NOT NULL,
+	`friction` integer NOT NULL,
+	`support` integer NOT NULL,
+	`overall` integer NOT NULL,
+	`heel_fit` text NOT NULL,
+	`toe_fit` text NOT NULL,
+	`instep_fit` text NOT NULL,
+	`forefoot_fit` text NOT NULL,
+	`arch_fit` text NOT NULL,
+	`breathability` text NOT NULL,
+	`scenarios_used` text NOT NULL,
+	`duration` text NOT NULL,
+	`content` text NOT NULL,
+	`pros` text,
+	`cons` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`shoe_id`) REFERENCES `shoe`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `review_user_shoe_unique` ON `review` (`user_id`,`shoe_id`);

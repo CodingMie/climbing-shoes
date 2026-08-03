@@ -109,6 +109,16 @@ export function listShoes(filters: ShoeFilters = {}) {
     .all();
 }
 
+export function formatShoeTitle(shoeInfo: {
+  brandName: string;
+  model: string;
+  variant: string | null;
+}): string {
+  return `${shoeInfo.brandName} ${shoeInfo.model}${
+    shoeInfo.variant ? ` ${shoeInfo.variant}` : ""
+  }`;
+}
+
 export function getShoe(id: number) {
   const row = getDb()
     .select({

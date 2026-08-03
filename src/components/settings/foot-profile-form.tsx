@@ -16,10 +16,10 @@ import {
   FOOT_LENGTH_MIN,
   STREET_SIZE_MAX,
   STREET_SIZE_MIN,
-  firstIssueMessage,
   footProfileRawValues,
   footProfileSchema,
 } from "@/lib/foot-profile-schema";
+import { firstIssueMessage } from "@/lib/zod-helpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

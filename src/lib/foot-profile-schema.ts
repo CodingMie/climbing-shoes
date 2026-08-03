@@ -48,10 +48,6 @@ export const footProfileSchema = z.object({
 
 export type FootProfileInput = z.infer<typeof footProfileSchema>;
 
-export function firstIssueMessage(error: z.ZodError): string {
-  return error.issues[0]?.message ?? "输入有误，请检查后重试";
-}
-
 export function footProfileRawValues(source: {
   get(name: string): FormDataEntryValue | null;
 }) {
