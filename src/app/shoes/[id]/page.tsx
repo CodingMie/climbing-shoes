@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReviewCard } from "@/components/reviews/review-card";
+import { RadarChart } from "@/components/shoes/radar-chart";
 import {
   FilterActions,
   FilterSelect,
@@ -72,8 +73,19 @@ export default async function ShoeDetailPage({
     .filter(Boolean)
     .join(" + ");
   const stats = getShoeReviewStats(shoe.id, footFilters);
+  const radarDimensions = stats
+    ? stats.dimensions.filter((dimension) => dimension.key !== "overall")
+    : [];
+  const overallDimension = stats
+    ? stats.dimensions.find((dimension) => dimension.key === "overall")
+    : undefined;
+  const srDimensions = [
+    ...(overallDimension ? [overallDimension] : []),
+    ...radarDimensions,
+  ];
+  const headlineMatch = stats?.sizeHeadline?.match(/^(\d+%)\s*(.*)$/);
 
-  const specs: { label: string; value: string }[] = [
+  const specs: { label: string; value: string; mono?: boolean }[] = [
     { label: "使用场景", value: shoe.scenarios.join("、") },
     { label: "硬度", value: shoe.stiffness },
     { label: "宽度楦型", value: shoe.width },
@@ -81,53 +93,56 @@ export default async function ShoeDetailPage({
     { label: "下压程度", value: shoe.downturn },
     { label: "闭合方式", value: shoe.closure },
     { label: "鞋面材质", value: shoe.material ?? "—" },
+    { label: "参考价", value: `¥${shoe.price}`, mono: true },
   ];
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      <Link href="/shoes" className="text-sm text-muted-foreground hover:underline">
+    <main className="mx-auto w-full max-w-5xl px-4 pb-8 pt-[22px] md:px-7 md:pb-11 md:pt-8">
+      <Link
+        href="/shoes"
+        className="text-label text-muted-foreground transition-colors hover:text-trail"
+      >
         ← 返回鞋库
       </Link>
 
-      <div className="mt-4 grid gap-8 lg:grid-cols-2">
-        <div className="space-y-3">
-          {shoe.images.length === 0 ? (
-            <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground">
-              暂无图片
-            </div>
-          ) : (
-            shoe.images.map((src) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={src}
-                src={src}
-                alt={`${shoe.brandName} ${shoe.model}`}
-                className="w-full rounded-lg border object-cover"
-              />
-            ))
-          )}
+      <div className="mt-[18px] grid gap-8 lg:grid-cols-[5fr_6fr]">
+        <div className="flex aspect-[4/3] flex-col items-center justify-center gap-1 rounded-lg border border-border bg-surface-2">
+          <span className="micro-label">IMG · 鞋款主图 800×600</span>
+          <span className="micro-label text-[9px]">占位槽 · 交付时换真图</span>
         </div>
 
         <div>
-          <p className="text-sm text-muted-foreground">{shoe.brandName}</p>
-          <h1 className="mt-1 text-3xl font-bold">{shoe.model}</h1>
-          <p className="mt-3 font-mono text-2xl font-semibold">¥{shoe.price}</p>
+          <p className="micro-label">{shoe.brandName} · SPEC 规格</p>
+          <h1 className="mt-1.5 text-[32px] font-black leading-[1.15] tracking-[-0.015em]">
+            {shoe.model}
+          </h1>
+          <p className="mt-3 font-mono text-[22px] font-semibold">
+            ¥{shoe.price}
+          </p>
           {shoe.brandDescription ? (
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2.5 max-w-[52ch] text-[13px] text-muted-foreground">
               {shoe.brandDescription}
             </p>
           ) : null}
 
-          <dl className="mt-6 divide-y rounded-lg border bg-card">
+          <dl className="mt-[18px] grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-hairline lg:grid-cols-4">
             {specs.map((spec) => (
-              <div key={spec.label} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-                <dt className="text-muted-foreground">{spec.label}</dt>
-                <dd className="text-right font-medium">{spec.value}</dd>
+              <div key={spec.label} className="bg-card px-4 py-3.5">
+                <dt className="micro-label">{spec.label}</dt>
+                <dd
+                  className={
+                    spec.mono
+                      ? "mt-[5px] font-mono text-[15px] font-semibold"
+                      : "mt-[5px] text-sm font-medium"
+                  }
+                >
+                  {spec.value}
+                </dd>
               </div>
             ))}
           </dl>
 
-          <div className="mt-6">
+          <div className="mt-[18px] flex gap-2.5">
             {myReview ? (
               <Button asChild variant="outline">
                 <Link href={`/reviews/${myReview.id}/edit`}>编辑我的测评</Link>
@@ -141,15 +156,15 @@ export default async function ShoeDetailPage({
         </div>
       </div>
 
-      <section className="mt-12">
+      <section className="mt-11">
         <h2 className="text-xl font-bold">测评数据</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-[13px] text-muted-foreground">
           可按测评者的脚型条件筛选，聚合结果只统计匹配脚型的测评
         </p>
 
         <form
           method="get"
-          className="mt-4 grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-4 grid grid-cols-2 gap-3.5 rounded-lg border border-border bg-card p-[18px] lg:grid-cols-4"
         >
           <FilterSelect
             name="footShape"
@@ -179,115 +194,131 @@ export default async function ShoeDetailPage({
         </form>
 
         {reviews.length === 0 ? (
-          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
             还没有测评，聚合数据会在首条测评后出现
           </p>
         ) : stats === null ? (
-          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
             没有符合所选脚型的测评，试试调整条件或清空脚型筛选
           </p>
         ) : (
-          <div className="mt-6 space-y-8">
-            <p className="text-sm text-muted-foreground">
+          <>
+            <p className="mt-5 font-mono text-xs text-muted-foreground">
               基于 {stats.reviewCount} 条测评
               {footDescription ? ` · 脚型：${footDescription}` : ""}
             </p>
 
-            <section>
-              <h3 className="text-base font-semibold">维度均分</h3>
-              <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {stats.dimensions.map((dimension) => (
-                  <li
-                    key={dimension.key}
-                    className="flex items-baseline justify-between gap-2 rounded-lg border bg-card px-3 py-2"
-                  >
-                    <span className="text-sm text-muted-foreground">
-                      {dimension.label}
+            <div className="mt-3 grid gap-px overflow-hidden rounded-lg border border-border bg-hairline lg:grid-cols-[1.1fr_0.95fr_1.15fr]">
+              <section className="bg-card px-5 py-[18px]">
+                <h3 className="text-sm font-bold">维度均分</h3>
+                <ul className="sr-only">
+                  {srDimensions.map((dimension) => (
+                    <li key={dimension.key}>
+                      {dimension.label} {dimension.avg.toFixed(1)}
+                    </li>
+                  ))}
+                </ul>
+                {overallDimension ? (
+                  <div className="mt-3 flex items-baseline justify-between gap-2.5">
+                    <span className="micro-label">综合推荐指数 · OVERALL</span>
+                    <span className="font-mono text-2xl font-semibold">
+                      {overallDimension.avg.toFixed(1)}
+                      <span className="text-[11.5px] font-normal text-muted-foreground">
+                        {" "}
+                        / 5
+                      </span>
                     </span>
-                    <span className="font-mono text-lg font-semibold">
-                      {dimension.avg.toFixed(1)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+                  </div>
+                ) : null}
+                <RadarChart dimensions={radarDimensions} />
+              </section>
 
-            <section>
-              <h3 className="text-base font-semibold">尺码偏移</h3>
-              {stats.sizeHeadline ? (
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {stats.sizeHeadline}
-                </p>
-              ) : null}
-              <ul className="mt-3 space-y-2">
-                {stats.sizeDeltas.map((bucket) => (
-                  <li
-                    key={bucket.delta}
-                    className="flex items-center gap-3 text-sm"
-                  >
-                    <span className="w-32 shrink-0 text-muted-foreground">
-                      {formatSizeDelta(bucket.delta)}
-                    </span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-[1px] bg-muted">
-                      <span
-                        className="block h-2 rounded-[1px] bg-primary"
-                        style={{ width: `${bucket.percent}%` }}
-                      />
-                    </span>
-                    <span className="w-24 shrink-0 font-mono text-right text-xs text-muted-foreground">
-                      {bucket.percent}% · {bucket.count} 条
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+              <section className="bg-card px-5 py-[18px]">
+                <h3 className="text-sm font-bold">尺码偏移</h3>
+                {headlineMatch ? (
+                  <p className="mt-2.5 text-[13px] text-ink-soft">
+                    <b className="font-mono font-semibold text-primary">
+                      {headlineMatch[1]}
+                    </b>{" "}
+                    {headlineMatch[2]}
+                  </p>
+                ) : null}
+                <ul className="mt-3.5 grid gap-[9px]">
+                  {stats.sizeDeltas.map((bucket) => (
+                    <li key={bucket.delta} className="flex items-center gap-2.5">
+                      <span className="w-[92px] shrink-0 text-xs text-ink-soft">
+                        {formatSizeDelta(bucket.delta)}
+                      </span>
+                      <span className="h-[3px] flex-1 overflow-hidden rounded-[1px] bg-surface-2">
+                        <span
+                          className="block h-full rounded-[1px] bg-primary"
+                          style={{ width: `${bucket.percent}%` }}
+                        />
+                      </span>
+                      <span className="w-[76px] shrink-0 text-right font-mono text-[11px] text-muted-foreground">
+                        {bucket.percent}% · {bucket.count} 条
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
 
-            <div>
-              <h3 className="text-base font-semibold">合身度反馈</h3>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {stats.fits.map((fit) => (
-                  <section key={fit.key} className="rounded-lg border bg-card p-4">
-                    <h4 className="text-sm font-medium">{fit.label}</h4>
-                    <ul className="mt-2 space-y-2">
-                      {fit.options.map((option) => (
-                        <li
-                          key={option.value}
-                          className="flex items-center gap-2 text-xs"
-                        >
-                          <span className="w-14 shrink-0 text-muted-foreground">
-                            {option.value}
-                          </span>
-                          <span className="h-1.5 flex-1 overflow-hidden rounded-[1px] bg-muted">
-                            <span
-                              className="block h-1.5 rounded-[1px] bg-primary"
-                              style={{ width: `${option.percent}%` }}
-                            />
-                          </span>
-                          <span className="w-16 shrink-0 text-right text-muted-foreground">
-                            {option.percent}% · {option.count} 条
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                ))}
+              <div className="bg-card px-5 py-[18px]">
+                <h3 className="text-sm font-bold">合身度反馈</h3>
+                <div className="mt-1.5">
+                  {stats.fits.map((fit) => {
+                    const topPercent = Math.max(
+                      ...fit.options.map((option) => option.percent),
+                    );
+                    return (
+                      <section
+                        key={fit.key}
+                        className="flex items-baseline gap-4 border-t border-border py-[9px] first:border-t-0"
+                      >
+                        <h4 className="w-[52px] shrink-0 text-[13px] font-bold">
+                          {fit.label}
+                        </h4>
+                        <ul className="flex flex-wrap font-mono text-xs text-muted-foreground">
+                          {fit.options.map((option, index) => (
+                            <li
+                              key={option.value}
+                              className={
+                                option.percent === topPercent
+                                  ? "font-semibold text-primary"
+                                  : undefined
+                              }
+                            >
+                              {index > 0 ? (
+                                <span
+                                  aria-hidden
+                                  className="mx-2 text-hairline-strong"
+                                >
+                                  ·
+                                </span>
+                              ) : null}
+                              {option.value} {option.percent}%
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </section>
 
-      <section className="mt-12">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">测评（{reviews.length}）</h2>
-        </div>
+      <section className="mt-11">
+        <h2 className="mb-3.5 text-lg font-bold">测评（{reviews.length}）</h2>
 
         {reviews.length === 0 ? (
-          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
             还没有测评。试穿过后来分享你的体验吧。
           </p>
         ) : (
-          <ul className="mt-4 space-y-4">
+          <ul className="grid gap-3.5">
             {reviews.map((item) => (
               <ReviewCard key={item.id} review={item} showShoe={false} />
             ))}
