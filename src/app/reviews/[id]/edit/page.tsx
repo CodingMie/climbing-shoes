@@ -34,13 +34,17 @@ export default async function EditReviewPage({
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
       <Link
         href={`/reviews/${review.id}`}
-        className="text-sm text-muted-foreground hover:underline"
+        className="text-label text-muted-foreground transition-colors hover:text-trail"
       >
         ← 返回测评详情
       </Link>
-      <h1 className="mt-4 text-2xl font-bold">编辑测评</h1>
-      <p className="mt-2 text-sm text-muted-foreground">目标鞋款：{shoeTitle}</p>
-      <div className="mt-8">
+      <h1 className="mt-3.5 text-[26px] font-black tracking-[-0.01em]">
+        编辑测评
+      </h1>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        目标鞋款：{shoeTitle}
+      </p>
+      <div className="mt-[26px]">
         <ReviewForm reviewId={review.id} review={review} />
       </div>
     </main>

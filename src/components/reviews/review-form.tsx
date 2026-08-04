@@ -51,7 +51,7 @@ function EnumSelect({
   renderOption?: (option: string) => string;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="grid gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <Select id={id} name={id} defaultValue={defaultValue ?? ""}>
         <option value="" disabled>
@@ -77,9 +77,9 @@ function RatingInput({
   defaultValue: number | undefined;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="grid gap-1.5">
       <Label>{label}</Label>
-      <div className="flex flex-row-reverse justify-end gap-1 text-xl leading-none">
+      <div className="flex flex-row-reverse justify-end gap-[3px] text-[19px] leading-none">
         {[5, 4, 3, 2, 1].map((value) => (
           <Fragment key={value}>
             <input
@@ -93,7 +93,7 @@ function RatingInput({
             <label
               htmlFor={`${name}-${value}`}
               aria-label={`${value} 分`}
-              className="cursor-pointer text-hairline transition-colors peer-checked:text-primary peer-hover:text-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50"
+              className="peer cursor-pointer text-hairline transition-colors hover:text-primary peer-checked:text-primary peer-hover:text-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50"
             >
               ★
             </label>
@@ -114,13 +114,11 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-base font-semibold">{title}</h2>
-        {hint ? (
-          <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-        ) : null}
-      </div>
+    <section className="mt-[22px] border-t border-border pt-[22px] first-of-type:mt-0 first-of-type:border-t-0 first-of-type:pt-0">
+      <h3 className="text-[15px] font-bold">{title}</h3>
+      {hint ? (
+        <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>
+      ) : null}
       {children}
     </section>
   );
@@ -157,7 +155,7 @@ export function ReviewForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-8">
+    <form onSubmit={handleSubmit} noValidate>
       {shoeId ? (
         <input type="hidden" name="shoeId" value={shoeId} />
       ) : null}
@@ -166,8 +164,8 @@ export function ReviewForm({
       ) : null}
 
       <Section title="尺码信息" hint="尺码偏移相对你的日常鞋码（EU）计算">
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="space-y-2">
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-3">
+          <div className="grid gap-1.5">
             <Label htmlFor="sizeTried">试穿尺码</Label>
             <Input
               id="sizeTried"
@@ -196,7 +194,7 @@ export function ReviewForm({
       </Section>
 
       <Section title="维度评分" hint="每项 1–5 分，5 分最好">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2">
           {RATING_DIMENSIONS.map((dimension) => (
             <RatingInput
               key={dimension}
@@ -209,7 +207,7 @@ export function ReviewForm({
       </Section>
 
       <Section title="合身度反馈" hint="按实际试穿感受单选">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2">
           <EnumSelect
             id="heelFit"
             label="脚跟"
@@ -250,47 +248,47 @@ export function ReviewForm({
       </Section>
 
       <Section title="使用背景">
-        <div className="space-y-2">
-          <Label>使用场景（可多选）</Label>
-          <div className="flex flex-wrap gap-4">
-            {SHOE_SCENARIOS.map((scenario) => (
-              <label
-                key={scenario}
-                className="flex items-center gap-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  name="scenariosUsed"
-                  value={scenario}
-                  defaultChecked={review?.scenariosUsed.includes(scenario)}
-                  className="size-4 accent-pine"
-                />
-                {scenario}
-              </label>
-            ))}
-          </div>
+        <Label className="mt-3 block">使用场景（可多选）</Label>
+        <div className="mt-2.5 flex flex-wrap gap-x-[18px] gap-y-2.5">
+          {SHOE_SCENARIOS.map((scenario) => (
+            <label
+              key={scenario}
+              className="flex items-center gap-[7px] text-[13px]"
+            >
+              <input
+                type="checkbox"
+                name="scenariosUsed"
+                value={scenario}
+                defaultChecked={review?.scenariosUsed.includes(scenario)}
+                className="size-[15px] accent-pine"
+              />
+              {scenario}
+            </label>
+          ))}
         </div>
-        <EnumSelect
-          id="duration"
-          label="使用时长"
-          options={DURATIONS}
-          defaultValue={review?.duration}
-        />
+        <div className="mt-3.5 max-w-[320px]">
+          <EnumSelect
+            id="duration"
+            label="使用时长"
+            options={DURATIONS}
+            defaultValue={review?.duration}
+          />
+        </div>
       </Section>
 
       <Section title="文字体验">
-        <div className="space-y-2">
+        <div className="mt-3.5 grid gap-1.5">
           <Label htmlFor="content">试穿体验</Label>
           <Textarea
             id="content"
             name="content"
-            rows={5}
+            rows={4}
             placeholder="这双鞋上脚的整体感受……"
             defaultValue={review?.content ?? ""}
           />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
+        <div className="mt-3.5 grid gap-3.5 sm:grid-cols-2">
+          <div className="grid gap-1.5">
             <Label htmlFor="pros">优点（可选）</Label>
             <Textarea
               id="pros"
@@ -299,7 +297,7 @@ export function ReviewForm({
               defaultValue={review?.pros ?? ""}
             />
           </div>
-          <div className="space-y-2">
+          <div className="grid gap-1.5">
             <Label htmlFor="cons">缺点（可选）</Label>
             <Textarea
               id="cons"
@@ -311,14 +309,16 @@ export function ReviewForm({
         </div>
       </Section>
 
-      {error ? (
-        <p role="alert" className="text-sm text-destructive">
-          {error}
-        </p>
-      ) : null}
-      <Button type="submit" disabled={submitting}>
-        {submitting ? "保存中…" : reviewId ? "保存修改" : "发布测评"}
-      </Button>
+      <div className="mt-[26px] flex items-center gap-3.5">
+        <Button type="submit" disabled={submitting}>
+          {submitting ? "保存中…" : reviewId ? "保存修改" : "发布测评"}
+        </Button>
+        {error ? (
+          <p role="alert" className="text-xs text-destructive">
+            {error}
+          </p>
+        ) : null}
+      </div>
     </form>
   );
 }

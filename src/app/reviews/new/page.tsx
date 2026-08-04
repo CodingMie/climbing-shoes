@@ -33,13 +33,15 @@ export default async function NewReviewPage({
   if (!getFootProfile(session.user.id)) {
     return (
       <main className="mx-auto w-full max-w-3xl px-6 py-12">
-        <h1 className="text-2xl font-bold">写测评</h1>
-        <p className="mt-2 text-sm text-muted-foreground">目标鞋款：{shoeTitle}</p>
-        <div className="mt-8 rounded-lg border bg-card p-6">
-          <h2 className="text-base font-semibold">
+        <h1 className="text-[26px] font-black tracking-[-0.01em]">写测评</h1>
+        <p className="mt-1 text-[13px] text-muted-foreground">
+          目标鞋款：{shoeTitle}
+        </p>
+        <div className="mt-[26px] rounded-lg border border-border bg-card p-6">
+          <h2 className="text-[15px] font-bold">
             写测评前，请先完善脚型档案
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             脚型档案是测评参考价值的来源：读者需要对照作者的脚型来判断一条测评是否适合自己。完善档案后才能提交测评。
           </p>
           <Button asChild className="mt-4">
@@ -54,13 +56,17 @@ export default async function NewReviewPage({
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
       <Link
         href={`/shoes/${shoeId}`}
-        className="text-sm text-muted-foreground hover:underline"
+        className="text-label text-muted-foreground transition-colors hover:text-trail"
       >
         ← 返回鞋款详情
       </Link>
-      <h1 className="mt-4 text-2xl font-bold">写测评</h1>
-      <p className="mt-2 text-sm text-muted-foreground">目标鞋款：{shoeTitle}</p>
-      <div className="mt-8">
+      <h1 className="mt-3.5 text-[26px] font-black tracking-[-0.01em]">
+        写测评
+      </h1>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        目标鞋款：{shoeTitle}
+      </p>
+      <div className="mt-[26px]">
         <ReviewForm shoeId={shoeId} />
       </div>
     </main>
