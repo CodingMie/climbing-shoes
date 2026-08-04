@@ -30,6 +30,7 @@ export const auth = betterAuth({
       "localhost:3100",
       "127.0.0.1:3000",
       "127.0.0.1:3100",
+      "192.168.*",
     ],
     fallback: "http://localhost:3000",
   },
