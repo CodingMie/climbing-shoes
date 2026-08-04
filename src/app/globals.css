@@ -169,6 +169,12 @@
   --sidebar-ring: var(--pine-bright);
 }
 
+@layer components {
+  .micro-label {
+    @apply font-mono text-[10.5px] font-medium uppercase tracking-[0.18em] text-muted-foreground;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

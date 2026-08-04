@@ -41,15 +41,20 @@ function mapLabel(
   return labels[value] ?? value;
 }
 
-export function FootSummaryLine({ profile }: { profile: FootSummaryData }) {
-  if (!profile.footWidth) return null;
-  const items = [
+export function footSummaryLabels(profile: FootSummaryData): string[] {
+  if (!profile.footWidth) return [];
+  return [
     mapLabel(FOOT_WIDTH_LABELS, profile.footWidth),
     mapLabel(ARCH_LABELS, profile.arch),
     mapLabel(INSTEP_LABELS, profile.instep),
     mapLabel(HEEL_LABELS, profile.heel),
     mapLabel(BUNION_LABELS, profile.bunion),
   ].filter((item): item is string => item !== null);
+}
+
+export function FootSummaryLine({ profile }: { profile: FootSummaryData }) {
+  const items = footSummaryLabels(profile);
+  if (items.length === 0) return null;
   return (
     <p className="text-xs text-muted-foreground">{items.join(" · ")}</p>
   );
