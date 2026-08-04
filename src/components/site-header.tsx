@@ -1,42 +1,11 @@
-import Link from "next/link";
 import { getSession } from "@/lib/session";
-import { LogoutButton } from "./logout-button";
+import { SiteHeaderShell } from "./site-header-shell";
 
 export async function SiteHeader() {
   const session = await getSession();
   return (
-    <header className="border-b">
-      <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-6">
-        <Link href="/" className="font-semibold">
-          攀岩鞋试穿体验平台
-        </Link>
-        {session ? (
-          <div className="flex items-center gap-3">
-            <Link href="/shoes" className="text-sm hover:underline">
-              鞋库
-            </Link>
-            <Link
-              href="/settings/profile"
-              className="text-sm text-muted-foreground hover:text-foreground hover:underline"
-            >
-              {session.user.username ?? session.user.name}
-            </Link>
-            <LogoutButton />
-          </div>
-        ) : (
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/shoes" className="hover:underline">
-              鞋库
-            </Link>
-            <Link href="/login" className="hover:underline">
-              登录
-            </Link>
-            <Link href="/register" className="hover:underline">
-              注册
-            </Link>
-          </nav>
-        )}
-      </div>
-    </header>
+    <SiteHeaderShell
+      username={session ? (session.user.username ?? session.user.name) : null}
+    />
   );
 }

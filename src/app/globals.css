@@ -61,8 +61,8 @@
 }
 
 @theme {
-  --text-field: 13.5px;
-  --text-field--line-height: 1.5;
+  --text-body: 13.5px;
+  --text-body--line-height: 1.5;
   --text-label: 12.5px;
   --text-label--line-height: 1;
 }
