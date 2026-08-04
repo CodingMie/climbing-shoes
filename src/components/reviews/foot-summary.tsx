@@ -6,12 +6,12 @@ export type FootSummaryData = {
   bunion?: string | null;
 };
 
-const FOOT_WIDTH_LABELS: Record<string, string> = {
+export const FOOT_WIDTH_LABELS: Record<string, string> = {
   窄: "窄脚",
   中: "正常脚",
   宽: "宽脚",
 };
-const ARCH_LABELS: Record<string, string> = {
+export const ARCH_LABELS: Record<string, string> = {
   低: "低足弓",
   正常: "正常足弓",
   高: "高足弓",
@@ -21,7 +21,7 @@ const INSTEP_LABELS: Record<string, string> = {
   正常: "正常脚背",
   高: "高脚背",
 };
-const HEEL_LABELS: Record<string, string> = {
+export const HEEL_LABELS: Record<string, string> = {
   窄: "窄脚后跟",
   中: "正常脚后跟",
   宽: "宽脚后跟",

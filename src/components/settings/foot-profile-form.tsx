@@ -37,7 +37,7 @@ function EnumField({
   defaultValue: string | undefined;
 }) {
   return (
-    <div className="space-y-2">
+    <div className="grid gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <Select id={id} name={id} defaultValue={defaultValue ?? ""}>
         <option value="" disabled>
@@ -83,9 +83,9 @@ export function FootProfileForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+    <form onSubmit={handleSubmit} noValidate className="grid gap-[22px]">
+      <div className="grid gap-3.5 sm:grid-cols-3">
+        <div className="grid gap-1.5">
           <Label htmlFor="footLength">脚长（毫米）</Label>
           <Input
             id="footLength"
@@ -99,7 +99,7 @@ export function FootProfileForm({
             defaultValue={profile?.footLength ?? ""}
           />
         </div>
-        <div className="space-y-2">
+        <div className="grid gap-1.5">
           <Label htmlFor="streetSize">日常鞋码（EU）</Label>
           <Input
             id="streetSize"
@@ -114,16 +114,18 @@ export function FootProfileForm({
           />
         </div>
         <EnumField
-          id="footWidth"
-          label="脚宽窄"
-          options={FOOT_WIDTHS}
-          defaultValue={profile?.footWidth}
-        />
-        <EnumField
           id="footShape"
           label="脚型"
           options={FOOT_SHAPES}
           defaultValue={profile?.footShape}
+        />
+      </div>
+      <div className="grid gap-3.5 sm:grid-cols-3">
+        <EnumField
+          id="footWidth"
+          label="脚宽窄"
+          options={FOOT_WIDTHS}
+          defaultValue={profile?.footWidth}
         />
         <EnumField
           id="arch"
@@ -137,6 +139,8 @@ export function FootProfileForm({
           options={INSTEP_TYPES}
           defaultValue={profile?.instep}
         />
+      </div>
+      <div className="grid gap-3.5 sm:grid-cols-3">
         <EnumField
           id="heel"
           label="脚后跟"
@@ -149,20 +153,22 @@ export function FootProfileForm({
           options={BUNION_LEVELS}
           defaultValue={profile?.bunion}
         />
+        <div className="flex items-end">
+          <Button type="submit" disabled={submitting} className="flex-1">
+            {submitting ? "保存中…" : "保存档案"}
+          </Button>
+        </div>
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-label text-destructive">
           {error}
         </p>
       ) : null}
       {saved ? (
-        <p role="status" className="text-sm text-muted-foreground">
+        <p role="status" className="text-label text-muted-foreground">
           脚型档案已保存
         </p>
       ) : null}
-      <Button type="submit" disabled={submitting}>
-        {submitting ? "保存中…" : "保存档案"}
-      </Button>
     </form>
   );
 }

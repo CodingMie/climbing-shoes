@@ -12,12 +12,15 @@ export default async function SettingsProfilePage() {
   const profile = getFootProfile(session.user.id);
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
-      <h1 className="text-2xl font-bold">脚型档案</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <span className="micro-label">FOOT PROFILE</span>
+      <h1 className="mt-1.5 text-[26px] font-black tracking-[-0.01em]">
+        脚型档案
+      </h1>
+      <p className="mt-1 text-[13px] text-muted-foreground">
         {session.user.name}
         ，完善你的脚型数据，写测评时它将作为尺码与合脚度的参考基准。
       </p>
-      <div className="mt-8">
+      <div className="mt-6">
         <FootProfileForm profile={profile} />
       </div>
     </main>

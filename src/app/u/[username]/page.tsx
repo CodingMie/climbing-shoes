@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { FootSummaryLine, FootStatsLine } from "@/components/reviews/foot-summary";
+import {
+  ARCH_LABELS,
+  FOOT_WIDTH_LABELS,
+  HEEL_LABELS,
+} from "@/components/reviews/foot-summary";
 import { ReviewCard } from "@/components/reviews/review-card";
 import { getFootProfile } from "@/lib/foot-profile";
 import { listUserReviews } from "@/lib/reviews";
@@ -34,33 +38,80 @@ export default async function UserHomePage({
   const reviews = listUserReviews(profileUser.id);
   const displayName = profileUser.username ?? profileUser.name;
 
+  const footCells: {
+    label: string;
+    value: string;
+    mono?: boolean;
+  }[] | null = footProfileRow
+    ? [
+        {
+          label: "脚宽窄",
+          value:
+            FOOT_WIDTH_LABELS[footProfileRow.footWidth] ??
+            footProfileRow.footWidth,
+        },
+        {
+          label: "足弓",
+          value: ARCH_LABELS[footProfileRow.arch] ?? footProfileRow.arch,
+        },
+        {
+          label: "脚后跟",
+          value: HEEL_LABELS[footProfileRow.heel] ?? footProfileRow.heel,
+        },
+        { label: "拇外翻", value: footProfileRow.bunion },
+        {
+          label: "脚长",
+          value: `${footProfileRow.footLength} mm`,
+          mono: true,
+        },
+        {
+          label: "日常鞋码",
+          value: `EU ${footProfileRow.streetSize}`,
+          mono: true,
+        },
+        { label: "脚型", value: footProfileRow.footShape },
+        { label: "测评数", value: String(reviews.length), mono: true },
+      ]
+    : null;
+
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      <h1 className="text-2xl font-bold">{displayName}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">脚型档案与测评</p>
+      <span className="micro-label">MEMBER · 脚型档案与测评</span>
+      <h1 className="mt-1.5 text-[26px] font-black tracking-[-0.01em]">
+        {displayName}
+      </h1>
 
-      <section className="mt-6 rounded-lg border bg-card p-5">
-        <h2 className="text-sm font-semibold">脚型档案摘要</h2>
-        {footProfileRow ? (
-          <div className="mt-2 space-y-1">
-            <FootSummaryLine profile={footProfileRow} />
-            <FootStatsLine profile={footProfileRow} />
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">
-            TA 还没有填写脚型档案。
-          </p>
-        )}
-      </section>
+      {footCells ? (
+        <dl className="mt-[18px] grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-hairline lg:grid-cols-4">
+          {footCells.map((cell) => (
+            <div key={cell.label} className="bg-card px-4 py-3.5">
+              <dt className="micro-label">{cell.label}</dt>
+              <dd
+                className={
+                  cell.mono
+                    ? "mt-[5px] font-mono text-[15px] font-semibold"
+                    : "mt-[5px] text-sm font-medium"
+                }
+              >
+                {cell.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        <p className="mt-[18px] rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
+          TA 还没有填写脚型档案。
+        </p>
+      )}
 
-      <section className="mt-10">
-        <h2 className="text-xl font-bold">TA 的测评（{reviews.length}）</h2>
+      <section className="mt-[34px]">
+        <h2 className="text-lg font-bold">TA 的测评（{reviews.length}）</h2>
         {reviews.length === 0 ? (
-          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-3.5 rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
             还没有发布过测评。
           </p>
         ) : (
-          <ul className="mt-4 space-y-4">
+          <ul className="mt-3.5 grid gap-3.5">
             {reviews.map((item) => (
               <ReviewCard key={item.id} review={item} showAuthor={false} />
             ))}
