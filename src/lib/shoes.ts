@@ -1,12 +1,20 @@
-import { and, asc, eq, gte, like, lte, or } from "drizzle-orm";
+import { and, asc, avg, count, desc, eq, gte, like, lte, or } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   brand,
+  FOOT_SHAPES,
+  FOOT_WIDTHS,
+  footProfile,
+  HEEL_WIDTHS,
+  review,
   shoe,
   SHOE_LEVELS,
   SHOE_SCENARIOS,
   SHOE_STIFFNESS,
   SHOE_WIDTHS,
+  type FootShape,
+  type FootWidth,
+  type HeelWidth,
   type ShoeScenario,
 } from "@/db/schema";
 
@@ -19,6 +27,9 @@ export type ShoeFilters = {
   priceMin?: number;
   priceMax?: number;
   q?: string;
+  footShape?: FootShape;
+  footWidth?: FootWidth;
+  footHeel?: HeelWidth;
 };
 
 function pick<T extends string>(
@@ -51,6 +62,9 @@ export function parseShoeFilters(
     priceMin: pickInt(params.priceMin),
     priceMax: pickInt(params.priceMax),
     q: typeof params.q === "string" ? params.q.trim() || undefined : undefined,
+    footShape: pick(params.footShape, FOOT_SHAPES),
+    footWidth: pick(params.footWidth, FOOT_WIDTHS),
+    footHeel: pick(params.footHeel, HEEL_WIDTHS),
   };
 }
 
@@ -61,6 +75,20 @@ export function listBrands() {
     .orderBy(asc(brand.name))
     .all();
 }
+
+const shoeListColumns = {
+  id: shoe.id,
+  model: shoe.model,
+  variant: shoe.variant,
+  price: shoe.price,
+  scenarios: shoe.scenarios,
+  stiffness: shoe.stiffness,
+  width: shoe.width,
+  level: shoe.level,
+  images: shoe.images,
+  brandId: brand.id,
+  brandName: brand.name,
+};
 
 export function listShoes(filters: ShoeFilters = {}) {
   const conditions = [eq(shoe.status, "approved")];
@@ -88,26 +116,57 @@ export function listShoes(filters: ShoeFilters = {}) {
     );
     if (search) conditions.push(search);
   }
+
+  const footConditions = [];
+  if (filters.footShape) {
+    footConditions.push(eq(footProfile.footShape, filters.footShape));
+  }
+  if (filters.footWidth) {
+    footConditions.push(eq(footProfile.footWidth, filters.footWidth));
+  }
+  if (filters.footHeel) {
+    footConditions.push(eq(footProfile.heel, filters.footHeel));
+  }
+
+  if (footConditions.length === 0) {
+    return getDb()
+      .select(shoeListColumns)
+      .from(shoe)
+      .innerJoin(brand, eq(shoe.brandId, brand.id))
+      .where(and(...conditions))
+      .orderBy(asc(brand.name), asc(shoe.model))
+      .all()
+      .map((row) => ({
+        ...row,
+        matchAvgRating: null,
+        matchReviewerCount: null,
+      }));
+  }
+
+  const matchRating = avg(review.overall);
+  const matchCount = count(review.id);
   return getDb()
     .select({
-      id: shoe.id,
-      model: shoe.model,
-      variant: shoe.variant,
-      price: shoe.price,
-      scenarios: shoe.scenarios,
-      stiffness: shoe.stiffness,
-      width: shoe.width,
-      level: shoe.level,
-      images: shoe.images,
-      brandId: brand.id,
-      brandName: brand.name,
+      ...shoeListColumns,
+      matchAvgRating: matchRating,
+      matchReviewerCount: matchCount,
     })
     .from(shoe)
     .innerJoin(brand, eq(shoe.brandId, brand.id))
-    .where(and(...conditions))
-    .orderBy(asc(brand.name), asc(shoe.model))
-    .all();
+    .innerJoin(review, eq(review.shoeId, shoe.id))
+    .innerJoin(footProfile, eq(review.userId, footProfile.userId))
+    .where(and(...conditions, ...footConditions))
+    .groupBy(shoe.id)
+    .orderBy(desc(matchRating), desc(matchCount), asc(brand.name), asc(shoe.model))
+    .all()
+    .map((row) => ({
+      ...row,
+      matchAvgRating:
+        row.matchAvgRating === null ? null : Number(row.matchAvgRating),
+    }));
 }
+
+export type ShoeListItem = ReturnType<typeof listShoes>[number];
 
 export function formatShoeTitle(shoeInfo: {
   brandName: string;

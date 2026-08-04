@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  FOOT_SHAPES,
+  FOOT_WIDTHS,
+  HEEL_WIDTHS,
   SHOE_LEVELS,
   SHOE_SCENARIOS,
   SHOE_STIFFNESS,
@@ -56,6 +59,10 @@ export default async function ShoesPage({
   const filters = parseShoeFilters(params);
   const brands = listBrands();
   const shoes = listShoes(filters);
+  const hasFootFilters =
+    filters.footShape !== undefined ||
+    filters.footWidth !== undefined ||
+    filters.footHeel !== undefined;
   const hasActiveFilters =
     filters.brandId !== undefined ||
     filters.scenario !== undefined ||
@@ -64,13 +71,14 @@ export default async function ShoesPage({
     filters.level !== undefined ||
     filters.priceMin !== undefined ||
     filters.priceMax !== undefined ||
-    filters.q !== undefined;
+    filters.q !== undefined ||
+    hasFootFilters;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <h1 className="text-2xl font-bold">鞋库</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        按属性组合筛选，或搜索品牌 / 型号 / 变体
+        按鞋款属性或测评者脚型筛选，或搜索品牌 / 型号 / 变体
       </p>
 
       <form
@@ -137,6 +145,33 @@ export default async function ShoesPage({
             />
           </span>
         </label>
+        <p className="border-t pt-4 text-sm font-medium sm:col-span-2 lg:col-span-4">
+          按脚型筛选
+          <span className="ml-2 font-normal text-muted-foreground">
+            找出符合脚型的测评者评过的鞋，按他们的平均分排序
+          </span>
+        </p>
+        <FilterSelect
+          name="footShape"
+          label="脚型"
+          value={filters.footShape}
+          placeholder="全部脚型"
+          options={FOOT_SHAPES.map((item) => ({ value: item, label: item }))}
+        />
+        <FilterSelect
+          name="footWidth"
+          label="脚宽"
+          value={filters.footWidth}
+          placeholder="全部脚宽"
+          options={FOOT_WIDTHS.map((item) => ({ value: item, label: item }))}
+        />
+        <FilterSelect
+          name="footHeel"
+          label="脚跟宽窄"
+          value={filters.footHeel}
+          placeholder="全部脚跟"
+          options={HEEL_WIDTHS.map((item) => ({ value: item, label: item }))}
+        />
         <label className="flex flex-col gap-1.5 text-sm sm:col-span-2 lg:col-span-3">
           <span className="text-muted-foreground">关键词</span>
           <input
@@ -167,6 +202,7 @@ export default async function ShoesPage({
 
       <p className="mt-6 text-sm text-muted-foreground">
         共 {shoes.length} 款
+        {hasFootFilters ? " · 按匹配脚型测评者的平均分排序" : ""}
       </p>
 
       {shoes.length === 0 ? (
@@ -202,6 +238,12 @@ export default async function ShoesPage({
                     {item.variant ? ` ${item.variant}` : ""}
                   </h2>
                   <p className="text-sm">¥{item.price}</p>
+                  {item.matchAvgRating !== null ? (
+                    <p className="text-xs font-medium text-primary">
+                      匹配脚型均分 {item.matchAvgRating.toFixed(1)} ·{" "}
+                      {item.matchReviewerCount} 人评过
+                    </p>
+                  ) : null}
                   <p className="text-xs text-muted-foreground">
                     {[
                       ...item.scenarios,
