@@ -53,8 +53,8 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4">
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit} noValidate className="grid gap-3.5">
+      <div className="grid gap-1.5">
         <Label htmlFor="username">用户名</Label>
         <Input
           id="username"
@@ -63,11 +63,11 @@ export function RegisterForm() {
           placeholder="3-30 位字母、数字或下划线"
         />
       </div>
-      <div className="space-y-2">
+      <div className="grid gap-1.5">
         <Label htmlFor="email">邮箱</Label>
         <Input id="email" name="email" type="email" autoComplete="email" />
       </div>
-      <div className="space-y-2">
+      <div className="grid gap-1.5">
         <Label htmlFor="password">密码</Label>
         <Input
           id="password"
@@ -77,7 +77,7 @@ export function RegisterForm() {
         />
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-label text-destructive">
           {error}
         </p>
       ) : null}

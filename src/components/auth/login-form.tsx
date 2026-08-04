@@ -33,12 +33,12 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
+    <form onSubmit={handleSubmit} className="grid gap-3.5">
+      <div className="grid gap-1.5">
         <Label htmlFor="identifier">用户名或邮箱</Label>
         <Input id="identifier" name="identifier" autoComplete="username" required />
       </div>
-      <div className="space-y-2">
+      <div className="grid gap-1.5">
         <Label htmlFor="password">密码</Label>
         <Input
           id="password"
@@ -49,7 +49,7 @@ export function LoginForm() {
         />
       </div>
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-label text-destructive">
           {error}
         </p>
       ) : null}
