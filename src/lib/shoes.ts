@@ -1,4 +1,4 @@
-import { and, asc, avg, count, desc, eq, gte, like, lte, or } from "drizzle-orm";
+import { and, asc, avg, count, desc, eq, gte, like, lte } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   brand,
@@ -26,7 +26,6 @@ export type ShoeFilters = {
   level?: (typeof SHOE_LEVELS)[number];
   priceMin?: number;
   priceMax?: number;
-  q?: string;
   footShape?: FootShape;
   footWidth?: FootWidth;
   footHeel?: HeelWidth;
@@ -61,7 +60,6 @@ export function parseShoeFilters(
     level: pick(params.level, SHOE_LEVELS),
     priceMin: pickInt(params.priceMin),
     priceMax: pickInt(params.priceMax),
-    q: typeof params.q === "string" ? params.q.trim() || undefined : undefined,
     footShape: pick(params.footShape, FOOT_SHAPES),
     footWidth: pick(params.footWidth, FOOT_WIDTHS),
     footHeel: pick(params.footHeel, HEEL_WIDTHS),
@@ -79,7 +77,6 @@ export function listBrands() {
 const shoeListColumns = {
   id: shoe.id,
   model: shoe.model,
-  variant: shoe.variant,
   price: shoe.price,
   scenarios: shoe.scenarios,
   stiffness: shoe.stiffness,
@@ -106,15 +103,6 @@ export function listShoes(filters: ShoeFilters = {}) {
   }
   if (filters.priceMax !== undefined) {
     conditions.push(lte(shoe.price, filters.priceMax));
-  }
-  if (filters.q) {
-    const pattern = `%${filters.q}%`;
-    const search = or(
-      like(shoe.model, pattern),
-      like(shoe.variant, pattern),
-      like(brand.name, pattern),
-    );
-    if (search) conditions.push(search);
   }
 
   const footConditions = [];
@@ -171,11 +159,8 @@ export type ShoeListItem = ReturnType<typeof listShoes>[number];
 export function formatShoeTitle(shoeInfo: {
   brandName: string;
   model: string;
-  variant: string | null;
 }): string {
-  return `${shoeInfo.brandName} ${shoeInfo.model}${
-    shoeInfo.variant ? ` ${shoeInfo.variant}` : ""
-  }`;
+  return `${shoeInfo.brandName} ${shoeInfo.model}`;
 }
 
 export function getShoe(id: number) {
@@ -183,7 +168,6 @@ export function getShoe(id: number) {
     .select({
       id: shoe.id,
       model: shoe.model,
-      variant: shoe.variant,
       price: shoe.price,
       scenarios: shoe.scenarios,
       stiffness: shoe.stiffness,

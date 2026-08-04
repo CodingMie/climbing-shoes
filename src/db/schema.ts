@@ -83,7 +83,6 @@ export const shoe = sqliteTable("shoe", {
     .notNull()
     .references(() => brand.id),
   model: text("model").notNull(),
-  variant: text("variant"),
   price: integer("price").notNull(),
   scenarios: text("scenarios", { mode: "json" })
     .$type<ShoeScenario[]>()

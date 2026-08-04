@@ -44,7 +44,6 @@ export default async function ReviewDetailPage({
   const shoeTitle = formatShoeTitle({
     brandName: review.brandName,
     model: review.shoeModel,
-    variant: review.shoeVariant,
   });
   const authorName = review.authorUsername ?? review.authorName;
   const createdAt = new Intl.DateTimeFormat("zh-CN", {

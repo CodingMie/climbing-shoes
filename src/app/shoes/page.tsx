@@ -55,14 +55,13 @@ export default async function ShoesPage({
     filters.level !== undefined ||
     filters.priceMin !== undefined ||
     filters.priceMax !== undefined ||
-    filters.q !== undefined ||
     hasFootFilters;
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <h1 className="text-2xl font-bold">鞋库</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        按鞋款属性或测评者脚型筛选，或搜索品牌 / 型号 / 变体
+        按鞋款属性或测评者脚型筛选
       </p>
 
       <form
@@ -156,16 +155,6 @@ export default async function ShoesPage({
           placeholder="全部脚后跟"
           options={HEEL_WIDTHS.map((item) => ({ value: item, label: item }))}
         />
-        <label className="flex flex-col gap-1.5 text-sm sm:col-span-2 lg:col-span-3">
-          <span className="text-muted-foreground">关键词</span>
-          <input
-            type="search"
-            name="q"
-            placeholder="搜索品牌 / 型号 / 变体"
-            defaultValue={filters.q ?? ""}
-            className={filterFieldClass}
-          />
-        </label>
         <FilterActions clearHref="/shoes" showClear={hasActiveFilters} />
       </form>
 
@@ -202,10 +191,7 @@ export default async function ShoesPage({
                   <p className="text-xs text-muted-foreground">
                     {item.brandName}
                   </p>
-                  <h2 className="font-semibold">
-                    {item.model}
-                    {item.variant ? ` ${item.variant}` : ""}
-                  </h2>
+                  <h2 className="font-semibold">{item.model}</h2>
                   <p className="text-sm">¥{item.price}</p>
                   {item.matchAvgRating !== null ? (
                     <p className="text-xs font-medium text-primary">

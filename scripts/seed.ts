@@ -20,7 +20,6 @@ type SeedBrand = {
 type SeedShoe = {
   brand: string;
   model: string;
-  variant?: string;
   price: number;
   scenarios: ShoeScenario[];
   stiffness: (typeof SHOE_STIFFNESS)[number];
@@ -57,8 +56,7 @@ const SHOES: SeedShoe[] = [
   },
   {
     brand: "La Sportiva",
-    model: "Miura",
-    variant: "系带版",
+    model: "Miura 系带版",
     price: 1180,
     scenarios: ["难度", "馆内全能"],
     stiffness: "硬",
@@ -118,8 +116,7 @@ const SHOES: SeedShoe[] = [
   },
   {
     brand: "Scarpa",
-    model: "Instinct",
-    variant: "VS",
+    model: "Instinct VS",
     price: 1280,
     scenarios: ["抱石", "馆内全能"],
     stiffness: "中",
@@ -277,11 +274,7 @@ function brandHue(name: string): number {
 }
 
 function writeSeedImage(shoe: SeedShoe): string {
-  const slug = [shoe.brand, shoe.model, shoe.variant]
-    .filter((part): part is string => Boolean(part))
-    .map(slugify)
-    .filter(Boolean)
-    .join("-");
+  const slug = [shoe.brand, shoe.model].map(slugify).filter(Boolean).join("-");
   const publicPath = `/seed/${slug}.svg`;
   const filePath = path.join(process.cwd(), "public", publicPath.slice(1));
   const hue = brandHue(shoe.brand);
@@ -289,9 +282,7 @@ function writeSeedImage(shoe: SeedShoe): string {
   <rect width="800" height="600" fill="hsl(${hue}, 45%, 30%)"/>
   <rect x="24" y="24" width="752" height="552" fill="none" stroke="hsl(${hue}, 40%, 55%)" stroke-width="2" rx="12"/>
   <text x="400" y="280" font-family="sans-serif" font-size="44" fill="#ffffff" text-anchor="middle">${shoe.brand}</text>
-  <text x="400" y="345" font-family="sans-serif" font-size="34" fill="hsl(${hue}, 30%, 85%)" text-anchor="middle">${shoe.model}${
-    shoe.variant ? ` ${shoe.variant}` : ""
-  }</text>
+  <text x="400" y="345" font-family="sans-serif" font-size="34" fill="hsl(${hue}, 30%, 85%)" text-anchor="middle">${shoe.model}</text>
 </svg>
 `;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -317,7 +308,6 @@ for (const seedShoe of SHOES) {
     .values({
       brandId,
       model: seedShoe.model,
-      variant: seedShoe.variant ?? null,
       price: seedShoe.price,
       scenarios: seedShoe.scenarios,
       stiffness: seedShoe.stiffness,

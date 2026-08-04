@@ -28,7 +28,6 @@ export default async function EditReviewPage({
   const shoeTitle = formatShoeTitle({
     brandName: review.brandName,
     model: review.shoeModel,
-    variant: review.shoeVariant,
   });
 
   return (

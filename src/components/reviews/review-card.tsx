@@ -13,7 +13,6 @@ export type ReviewCardData = {
   createdAt: Date;
   shoeId?: number;
   shoeModel?: string;
-  shoeVariant?: string | null;
   brandName?: string;
   authorName?: string;
   authorUsername?: string | null;
@@ -49,7 +48,6 @@ export function ReviewCard({
       ? formatShoeTitle({
           brandName: review.brandName,
           model: review.shoeModel,
-          variant: review.shoeVariant ?? null,
         })
       : null;
 

@@ -27,7 +27,7 @@ export async function generateMetadata({
   const shoe = await findShoe(params);
   if (!shoe) return { title: "鞋款不存在" };
   return {
-    title: `${shoe.brandName} ${shoe.model}${shoe.variant ? ` ${shoe.variant}` : ""}`,
+    title: `${shoe.brandName} ${shoe.model}`,
   };
 }
 
@@ -110,10 +110,7 @@ export default async function ShoeDetailPage({
 
         <div>
           <p className="text-sm text-muted-foreground">{shoe.brandName}</p>
-          <h1 className="mt-1 text-3xl font-bold">
-            {shoe.model}
-            {shoe.variant ? ` ${shoe.variant}` : ""}
-          </h1>
+          <h1 className="mt-1 text-3xl font-bold">{shoe.model}</h1>
           <p className="mt-3 text-2xl font-semibold">¥{shoe.price}</p>
           {shoe.brandDescription ? (
             <p className="mt-2 text-sm text-muted-foreground">

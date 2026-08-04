@@ -74,7 +74,6 @@ export type ShoeReviewCard = ReturnType<typeof listShoeReviews>[number];
 const shoeColumns = {
   shoeId: shoe.id,
   shoeModel: shoe.model,
-  shoeVariant: shoe.variant,
   brandName: brand.name,
 };
 
@@ -157,7 +156,6 @@ export function getReviewDetail(id: number) {
       ...authorColumns,
       ...footSummaryColumns,
       shoeModel: shoe.model,
-      shoeVariant: shoe.variant,
       brandName: brand.name,
     })
     .from(review)

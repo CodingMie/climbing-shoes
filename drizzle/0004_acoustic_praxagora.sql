@@ -1,0 +1,1 @@
+ALTER TABLE `shoe` DROP COLUMN `variant`;
