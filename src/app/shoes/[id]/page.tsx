@@ -92,7 +92,7 @@ export default async function ShoeDetailPage({
       <div className="mt-4 grid gap-8 lg:grid-cols-2">
         <div className="space-y-3">
           {shoe.images.length === 0 ? (
-            <div className="flex aspect-[4/3] w-full items-center justify-center rounded-xl border bg-muted text-sm text-muted-foreground">
+            <div className="flex aspect-[4/3] w-full items-center justify-center rounded-lg border bg-muted text-sm text-muted-foreground">
               暂无图片
             </div>
           ) : (
@@ -102,7 +102,7 @@ export default async function ShoeDetailPage({
                 key={src}
                 src={src}
                 alt={`${shoe.brandName} ${shoe.model}`}
-                className="w-full rounded-xl border object-cover"
+                className="w-full rounded-lg border object-cover"
               />
             ))
           )}
@@ -111,14 +111,14 @@ export default async function ShoeDetailPage({
         <div>
           <p className="text-sm text-muted-foreground">{shoe.brandName}</p>
           <h1 className="mt-1 text-3xl font-bold">{shoe.model}</h1>
-          <p className="mt-3 text-2xl font-semibold">¥{shoe.price}</p>
+          <p className="mt-3 font-mono text-2xl font-semibold">¥{shoe.price}</p>
           {shoe.brandDescription ? (
             <p className="mt-2 text-sm text-muted-foreground">
               {shoe.brandDescription}
             </p>
           ) : null}
 
-          <dl className="mt-6 divide-y rounded-xl border bg-card">
+          <dl className="mt-6 divide-y rounded-lg border bg-card">
             {specs.map((spec) => (
               <div key={spec.label} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
                 <dt className="text-muted-foreground">{spec.label}</dt>
@@ -149,7 +149,7 @@ export default async function ShoeDetailPage({
 
         <form
           method="get"
-          className="mt-4 grid gap-4 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-4 grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
         >
           <FilterSelect
             name="footShape"
@@ -179,11 +179,11 @@ export default async function ShoeDetailPage({
         </form>
 
         {reviews.length === 0 ? (
-          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
             还没有测评，聚合数据会在首条测评后出现
           </p>
         ) : stats === null ? (
-          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
             没有符合所选脚型的测评，试试调整条件或清空脚型筛选
           </p>
         ) : (
@@ -204,7 +204,7 @@ export default async function ShoeDetailPage({
                     <span className="text-sm text-muted-foreground">
                       {dimension.label}
                     </span>
-                    <span className="text-lg font-semibold">
+                    <span className="font-mono text-lg font-semibold">
                       {dimension.avg.toFixed(1)}
                     </span>
                   </li>
@@ -228,13 +228,13 @@ export default async function ShoeDetailPage({
                     <span className="w-32 shrink-0 text-muted-foreground">
                       {formatSizeDelta(bucket.delta)}
                     </span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                    <span className="h-2 flex-1 overflow-hidden rounded-[1px] bg-muted">
                       <span
-                        className="block h-2 rounded-full bg-primary"
+                        className="block h-2 rounded-[1px] bg-primary"
                         style={{ width: `${bucket.percent}%` }}
                       />
                     </span>
-                    <span className="w-24 shrink-0 text-right text-xs text-muted-foreground">
+                    <span className="w-24 shrink-0 font-mono text-right text-xs text-muted-foreground">
                       {bucket.percent}% · {bucket.count} 条
                     </span>
                   </li>
@@ -246,7 +246,7 @@ export default async function ShoeDetailPage({
               <h3 className="text-base font-semibold">合身度反馈</h3>
               <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.fits.map((fit) => (
-                  <section key={fit.key} className="rounded-xl border bg-card p-4">
+                  <section key={fit.key} className="rounded-lg border bg-card p-4">
                     <h4 className="text-sm font-medium">{fit.label}</h4>
                     <ul className="mt-2 space-y-2">
                       {fit.options.map((option) => (
@@ -257,9 +257,9 @@ export default async function ShoeDetailPage({
                           <span className="w-14 shrink-0 text-muted-foreground">
                             {option.value}
                           </span>
-                          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                          <span className="h-1.5 flex-1 overflow-hidden rounded-[1px] bg-muted">
                             <span
-                              className="block h-1.5 rounded-full bg-primary"
+                              className="block h-1.5 rounded-[1px] bg-primary"
                               style={{ width: `${option.percent}%` }}
                             />
                           </span>
@@ -283,7 +283,7 @@ export default async function ShoeDetailPage({
         </div>
 
         {reviews.length === 0 ? (
-          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
             还没有测评。试穿过后来分享你的体验吧。
           </p>
         ) : (

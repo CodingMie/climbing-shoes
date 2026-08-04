@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { IBM_Plex_Mono, Noto_Sans_SC, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex",
+});
+
+const notoSansSC = Noto_Sans_SC({
+  subsets: ["latin"],
+  variable: "--font-noto",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -21,7 +35,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={cn("font-sans", inter.variable)}>
+    <html
+      lang="zh-CN"
+      className={cn(
+        "font-sans",
+        spaceGrotesk.variable,
+        ibmPlexMono.variable,
+        notoSansSC.variable,
+      )}
+    >
       <body className="antialiased">
         <SiteHeader />
         {children}

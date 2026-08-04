@@ -85,7 +85,7 @@ export default async function ReviewDetailPage({
           )}{" "}
           的测评
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 font-mono text-sm text-muted-foreground">
           发布于 {createdAt}
         </p>
       </div>
@@ -106,30 +106,30 @@ export default async function ReviewDetailPage({
 
       <section className="mt-8 space-y-2">
         <h2 className="text-base font-semibold">尺码信息</h2>
-        <dl className="divide-y rounded-xl border bg-card">
+        <dl className="divide-y rounded-lg border bg-card">
           <div className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
             <dt className="text-muted-foreground">试穿尺码</dt>
-            <dd className="font-medium">
+            <dd className="font-mono font-medium">
               {review.sizeTried} {review.sizeSystem}
             </dd>
           </div>
           <div className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
             <dt className="text-muted-foreground">相对日常码</dt>
-            <dd className="font-medium">{formatSizeDelta(review.sizeDelta)}</dd>
+            <dd className="font-mono font-medium">{formatSizeDelta(review.sizeDelta)}</dd>
           </div>
         </dl>
       </section>
 
       <section className="mt-8 space-y-2">
         <h2 className="text-base font-semibold">维度评分</h2>
-        <dl className="divide-y rounded-xl border bg-card">
+        <dl className="divide-y rounded-lg border bg-card">
           {RATING_DIMENSIONS.map((dimension) => (
             <div
               key={dimension}
               className="flex items-center justify-between gap-4 px-4 py-3 text-sm"
             >
               <dt className="text-muted-foreground">{RATING_LABELS[dimension]}</dt>
-              <dd className="font-medium">{review[dimension]} 分</dd>
+              <dd className="font-mono font-medium">{review[dimension]} 分</dd>
             </div>
           ))}
         </dl>
@@ -137,7 +137,7 @@ export default async function ReviewDetailPage({
 
       <section className="mt-8 space-y-2">
         <h2 className="text-base font-semibold">合身度反馈</h2>
-        <dl className="divide-y rounded-xl border bg-card">
+        <dl className="divide-y rounded-lg border bg-card">
           {fitFeedback.map((item) => (
             <div
               key={item.label}
@@ -152,7 +152,7 @@ export default async function ReviewDetailPage({
 
       <section className="mt-8 space-y-2">
         <h2 className="text-base font-semibold">使用背景</h2>
-        <dl className="divide-y rounded-xl border bg-card">
+        <dl className="divide-y rounded-lg border bg-card">
           <div className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
             <dt className="text-muted-foreground">使用场景</dt>
             <dd className="text-right font-medium">
@@ -172,7 +172,7 @@ export default async function ReviewDetailPage({
           {review.content}
         </p>
         {review.pros ? (
-          <div className="rounded-xl border bg-card p-4">
+          <div className="rounded-lg border bg-card p-4">
             <h3 className="text-sm font-semibold">优点</h3>
             <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
               {review.pros}
@@ -180,7 +180,7 @@ export default async function ReviewDetailPage({
           </div>
         ) : null}
         {review.cons ? (
-          <div className="rounded-xl border bg-card p-4">
+          <div className="rounded-lg border bg-card p-4">
             <h3 className="text-sm font-semibold">缺点</h3>
             <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
               {review.cons}
@@ -189,7 +189,7 @@ export default async function ReviewDetailPage({
         ) : null}
       </section>
 
-      <section className="mt-8 rounded-xl border bg-card p-4">
+      <section className="mt-8 rounded-lg border bg-card p-4">
         <h2 className="text-sm font-semibold">作者脚型摘要</h2>
         <p className="mt-1 text-sm text-muted-foreground">{authorName}</p>
         <div className="mt-1">

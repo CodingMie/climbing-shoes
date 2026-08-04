@@ -93,7 +93,7 @@ function RatingInput({
             <label
               htmlFor={`${name}-${value}`}
               aria-label={`${value} 分`}
-              className="cursor-pointer text-muted-foreground/30 transition-colors peer-checked:text-amber-400 peer-hover:text-amber-400 peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50"
+              className="cursor-pointer text-hairline transition-colors peer-checked:text-primary peer-hover:text-primary peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50"
             >
               ★
             </label>
@@ -263,7 +263,7 @@ export function ReviewForm({
                   name="scenariosUsed"
                   value={scenario}
                   defaultChecked={review?.scenariosUsed.includes(scenario)}
-                  className="size-4 accent-primary"
+                  className="size-4 accent-pine"
                 />
                 {scenario}
               </label>

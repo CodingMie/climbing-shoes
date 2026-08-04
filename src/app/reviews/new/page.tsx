@@ -35,7 +35,7 @@ export default async function NewReviewPage({
       <main className="mx-auto w-full max-w-3xl px-6 py-12">
         <h1 className="text-2xl font-bold">写测评</h1>
         <p className="mt-2 text-sm text-muted-foreground">目标鞋款：{shoeTitle}</p>
-        <div className="mt-8 rounded-xl border bg-card p-6">
+        <div className="mt-8 rounded-lg border bg-card p-6">
           <h2 className="text-base font-semibold">
             写测评前，请先完善脚型档案
           </h2>

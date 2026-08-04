@@ -52,7 +52,7 @@ export function ReviewCard({
       : null;
 
   return (
-    <li className="rounded-xl border bg-card p-5">
+    <li className="rounded-lg border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           {showShoe && shoeTitle && review.shoeId ? (
@@ -88,7 +88,7 @@ export function ReviewCard({
             )
           ) : null}
         </div>
-        <p className="shrink-0 text-sm text-muted-foreground">
+        <p className="shrink-0 font-mono text-sm text-muted-foreground">
           综合 {review.overall} 分 · {review.sizeTried} {review.sizeSystem} ·{" "}
           {formatSizeDelta(review.sizeDelta)}
         </p>
@@ -111,7 +111,7 @@ export function ReviewCard({
         >
           查看完整测评 →
         </Link>
-        <span className="text-xs text-muted-foreground">
+        <span className="font-mono text-xs text-muted-foreground">
           {formatCardDate(review.createdAt)}
         </span>
       </div>

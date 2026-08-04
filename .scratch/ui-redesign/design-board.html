@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山系 UI 重构 · 设计稿 · 攀岩鞋试穿体验平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F3F4F0;
+    --surface: #FAFAF7;
+    --surface-2: #ECEEE6;
+    --ink: #161C17;
+    --ink-soft: #414A42;
+    --muted: #6A7266;
+    --hairline: #DADDD2;
+    --hairline-strong: #C0C6B6;
+    --pine: #2E4A38;
+    --pine-deep: #1F3527;
+    --moss: #5C6B54;
+    --accent: #C2410C;
+    --accent-hover: #A33608;
+    --accent-tint: rgba(194, 65, 12, 0.08);
+    --destructive: #A63A2E;
+    --radius: 2px;
+    --display: "Space Grotesk", "Noto Sans SC", sans-serif;
+    --body: "Noto Sans SC", sans-serif;
+    --mono: "IBM Plex Mono", "Noto Sans SC", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--body);
+    background: #E9EBE4;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 24px 120px;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .board { max-width: 1240px; margin: 0 auto; }
+
+  .micro {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .mono { font-family: var(--mono); }
+
+  .board-head { margin-bottom: 48px; }
+  .board-head .kicker { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+  .board-head h1 {
+    font-family: var(--display);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .board-head .read {
+    margin-top: 10px; max-width: 80ch; color: var(--ink-soft);
+  }
+  .dials {
+    display: flex; gap: 0; margin-top: 20px;
+    border: 1px solid var(--hairline-strong); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden; width: fit-content;
+  }
+  .dials > div { padding: 10px 20px; border-right: 1px solid var(--hairline); }
+  .dials > div:last-child { border-right: 0; }
+  .dials b { font-family: var(--mono); font-size: 15px; display: block; margin-top: 2px; }
+
+  .audit {
+    margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    background: var(--hairline); border: 1px solid var(--hairline-strong); border-radius: var(--radius); overflow: hidden;
+  }
+  .audit > div { background: var(--surface); padding: 16px 20px; }
+  .audit h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .audit ul { list-style: none; }
+  .audit li { font-size: 12.5px; color: var(--ink-soft); padding: 3px 0 3px 14px; position: relative; }
+  .audit li::before { content: ""; position: absolute; left: 0; top: 11px; width: 6px; height: 1px; background: var(--hairline-strong); }
+  .audit .keep li::before { background: var(--pine); }
+  .audit .retire li::before { background: var(--accent); }
+
+  .section { margin-top: 64px; }
+  .section-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; border-bottom: 1px solid var(--hairline-strong); padding-bottom: 10px; }
+  .section-head .no { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.12em; }
+  .section-head h2 { font-family: var(--display); font-size: 21px; font-weight: 700; }
+  .section-head .path { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: auto; letter-spacing: 0.06em; }
+  .section-note { font-size: 12.5px; color: var(--muted); margin-bottom: 16px; max-width: 90ch; }
+
+  .frame {
+    border: 1px solid var(--hairline-strong); border-radius: var(--radius);
+    background: var(--paper); overflow: hidden;
+  }
+  .frame + .frame { margin-top: 20px; }
+  .frame-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px; border-bottom: 1px solid var(--hairline);
+    background: var(--surface);
+  }
+  .frame-bar .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--hairline-strong); }
+  .frame-bar span:last-of-type { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .frame-body { padding: 0; }
+
+  .row { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .row > .frame { flex: 1; min-width: 340px; margin-top: 0; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 36px; padding: 0 16px; border-radius: var(--radius);
+    font-family: var(--body); font-size: 13.5px; font-weight: 500;
+    border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: #FFF8F2; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-outline { background: var(--surface); border-color: var(--hairline-strong); color: var(--ink); }
+  .btn-outline:hover { background: var(--surface-2); }
+  .btn-pine { background: var(--pine); color: #F0F4EE; }
+  .btn-pine:hover { background: var(--pine-deep); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-danger { background: transparent; border-color: rgba(166, 58, 46, 0.4); color: var(--destructive); }
+  .btn-danger:hover { background: rgba(166, 58, 46, 0.07); }
+  .btn-sm { height: 30px; padding: 0 12px; font-size: 12.5px; }
+  .btn.is-focus { outline: 2px solid var(--pine); outline-offset: 2px; }
+  .btn.is-hover-outline { background: var(--surface-2); }
+
+  .input, select.input, textarea.input {
+    height: 36px; width: 100%; padding: 0 12px;
+    border: 1px solid var(--hairline-strong); border-radius: var(--radius);
+    background: #FDFDFB; font-family: var(--body); font-size: 13.5px; color: var(--ink);
+    outline: none;
+  }
+  textarea.input { height: auto; padding: 10px 12px; resize: vertical; }
+  .input::placeholder { color: #9AA192; }
+  .input.is-focus { border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46, 74, 56, 0.15); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12.5px; color: var(--ink-soft); font-weight: 500; }
+
+  .hairbox { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); }
+
+  .specgrid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden;
+  }
+  .specgrid > div { background: var(--surface); padding: 14px 16px; }
+  .specgrid .v { font-size: 14px; font-weight: 500; margin-top: 5px; }
+  .specgrid .v.mono { font-size: 15px; font-weight: 600; }
+
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-row .lbl { width: 84px; flex-shrink: 0; font-size: 12.5px; color: var(--ink-soft); }
+  .bar-track { flex: 1; height: 3px; background: var(--surface-2); border-radius: 1px; overflow: hidden; }
+  .bar-fill { display: block; height: 100%; background: var(--accent); border-radius: 1px; }
+  .bar-row .val { width: 34px; flex-shrink: 0; text-align: right; font-family: var(--mono); font-size: 12.5px; font-weight: 600; }
+  .bar-row.thin .bar-track { height: 2px; }
+  .bar-row .sub { width: 88px; flex-shrink: 0; text-align: right; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  .chip {
+    display: inline-flex; align-items: center; height: 20px; padding: 0 8px;
+    border-radius: var(--radius); font-family: var(--mono); font-size: 11px; font-weight: 600;
+    background: var(--accent-tint); color: var(--accent); border: 1px solid rgba(194, 65, 12, 0.25);
+  }
+
+  .sizebox {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface);
+    padding: 10px 14px; font-family: var(--mono); font-size: 12.5px;
+  }
+  .sizebox .k { color: var(--muted); font-size: 10.5px; letter-spacing: 0.14em; display: block; }
+  .sizebox .arrow { color: var(--hairline-strong); }
+  .sizebox b { font-size: 14px; font-weight: 600; }
+
+  .rcard {
+    border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface);
+    padding: 18px 20px; list-style: none;
+  }
+  .rcard:hover { border-color: var(--hairline-strong); }
+  .rcard-top { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+  .rcard-shoe { font-family: var(--display); font-size: 16.5px; font-weight: 700; margin-top: 3px; }
+  .rcard-shoe a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .rcard-author { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .rcard-author a { color: var(--ink-soft); font-weight: 500; }
+  .rcard-author a:hover { text-decoration: underline; }
+  .rcard-score { text-align: right; flex-shrink: 0; }
+  .rcard-score .n { font-family: var(--mono); font-size: 22px; font-weight: 600; line-height: 1.1; display: block; }
+  .rcard-score .of { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+  .agg-row { display: grid; grid-template-columns: 1.1fr 0.95fr 1.15fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; margin-top: 12px; }
+  .agg-cell { background: var(--surface); padding: 18px 20px; }
+  .agg-cell h3 { font-size: 14px; font-weight: 700; }
+  .overall-line { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 12px; }
+  .overall-line .num { font-size: 24px; font-weight: 600; }
+  .overall-line .num .of { font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  .size-headline { margin-top: 10px; font-size: 13px; color: var(--ink-soft); }
+  .size-bars { list-style: none; margin-top: 14px; display: grid; gap: 9px; }
+  .size-bars .bar-row .lbl { width: 92px; font-size: 12px; }
+  .size-bars .bar-row .sub { width: 76px; }
+  .agg-cell .fit-rows { border: 0; background: transparent; margin-top: 6px; }
+  .agg-cell .fit-row { padding-left: 0; padding-right: 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .fit-rows { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); margin-top: 12px; }
+  .fit-row { display: flex; gap: 16px; align-items: baseline; padding: 9px 16px; border-top: 1px solid var(--hairline); }
+  .fit-row:first-child { border-top: 0; }
+  .fit-row h4 { width: 52px; flex-shrink: 0; font-size: 13px; font-weight: 700; }
+  .fit-row ul { display: flex; flex-wrap: wrap; list-style: none; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .fit-row li + li::before { content: "·"; margin: 0 8px; color: var(--hairline-strong); }
+  .fit-row li.top { color: var(--accent); font-weight: 600; }
+  .rcard-excerpt { margin-top: 12px; font-size: 13px; color: var(--ink-soft); line-height: 1.75; }
+  .rcard-foot {
+    margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hairline);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .rcard-foot a { font-size: 12.5px; font-weight: 500; }
+  .rcard-foot a:hover { color: var(--accent); }
+  .rcard-foot .date { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  .site-header {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px; padding: 0 28px; border-bottom: 1px solid var(--hairline);
+    background: var(--paper);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand .mark {
+    width: 26px; height: 26px; background: var(--pine); border-radius: var(--radius);
+    display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+  }
+  .brand .name { font-family: var(--display); font-weight: 700; font-size: 14.5px; letter-spacing: 0.01em; }
+  .brand .sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; color: var(--muted); display: block; margin-top: -1px; }
+  .site-nav { display: flex; align-items: center; gap: 22px; font-size: 13.5px; }
+  .site-nav a:hover { color: var(--accent); }
+  .site-nav .user { font-weight: 700; }
+  .site-nav .sep { width: 1px; height: 16px; background: var(--hairline-strong); }
+
+  .page-pad { padding: 32px 28px 44px; }
+  .page-title { font-family: var(--display); font-size: 26px; font-weight: 900; letter-spacing: -0.01em; }
+  .page-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  .hero { display: grid; grid-template-columns: 7fr 5fr; gap: 40px; align-items: end; padding: 44px 28px 36px; border-bottom: 1px solid var(--hairline); }
+  .hero h1 { font-family: var(--display); font-size: 38px; font-weight: 900; letter-spacing: -0.015em; line-height: 1.18; margin-top: 12px; }
+  .hero .sub { margin-top: 12px; color: var(--ink-soft); font-size: 14.5px; max-width: 40ch; }
+  .hero .ctas { display: flex; gap: 10px; margin-top: 22px; }
+  .stat-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
+  .stat-strip > div { background: var(--surface); padding: 16px 14px; }
+  .stat-strip b { font-family: var(--mono); font-size: 22px; font-weight: 600; display: block; margin-top: 6px; }
+
+  .sec-title-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; }
+  .sec-title-row h2 { font-family: var(--display); font-size: 18px; font-weight: 700; }
+  .sec-title-row .more { font-size: 12.5px; color: var(--muted); }
+  .sec-title-row .more:hover { color: var(--accent); }
+
+  .filter-panel { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); padding: 18px; }
+  .filter-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .filter-group-label {
+    grid-column: 1 / -1; border-top: 1px solid var(--hairline); padding-top: 14px; margin-top: 4px;
+    font-size: 13px; font-weight: 700;
+  }
+  .filter-group-label span { font-weight: 400; color: var(--muted); margin-left: 8px; font-size: 12px; }
+  .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
+
+  .shoe-card { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); overflow: hidden; display: block; }
+  .shoe-card:hover { border-color: var(--hairline-strong); }
+  .shoe-card .img {
+    aspect-ratio: 4 / 3; background: var(--surface-2); border-bottom: 1px solid var(--hairline);
+    display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+  }
+  .shoe-card .body { padding: 14px 16px 16px; }
+  .shoe-card h3 { font-family: var(--display); font-size: 15.5px; font-weight: 700; margin-top: 3px; }
+  .shoe-card .price { font-family: var(--mono); font-size: 14px; font-weight: 600; margin-top: 6px; }
+  .shoe-card .match { font-family: var(--mono); font-size: 11.5px; color: var(--accent); font-weight: 600; margin-top: 6px; }
+  .shoe-card .specs { font-size: 11px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hairline); }
+  .shoe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .detail-top { display: grid; grid-template-columns: 5fr 6fr; gap: 32px; }
+  .detail-img {
+    aspect-ratio: 4 / 3; background: var(--surface-2); border: 1px solid var(--hairline); border-radius: var(--radius);
+    display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+  }
+  .detail-model { font-family: var(--display); font-size: 32px; font-weight: 900; letter-spacing: -0.015em; line-height: 1.15; margin-top: 6px; }
+  .detail-price { font-family: var(--mono); font-size: 22px; font-weight: 600; margin-top: 12px; }
+  .detail-desc { font-size: 13px; color: var(--muted); margin-top: 10px; max-width: 52ch; }
+  .backlink { font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+  .backlink:hover { color: var(--accent); }
+
+
+  .kv-list { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); }
+  .kv-list > div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 16px; border-top: 1px solid var(--hairline); font-size: 13px; }
+  .kv-list > div:first-child { border-top: 0; }
+  .kv-list dt { color: var(--muted); }
+  .kv-list dd { font-weight: 500; text-align: right; }
+  .kv-list dd.mono { font-weight: 600; }
+  .kv-list dd.hl { color: var(--accent); font-weight: 600; font-family: var(--mono); }
+
+  .form-sec { border-top: 1px solid var(--hairline); padding-top: 22px; margin-top: 22px; }
+  .form-sec:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .form-sec h3 { font-size: 15px; font-weight: 700; }
+  .form-sec .hint { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+  .form-grid.c2 { grid-template-columns: repeat(2, 1fr); }
+  .stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: 3px; font-size: 19px; }
+  .stars span { color: #D5D8CC; cursor: pointer; }
+  .stars span.on { color: var(--accent); }
+  .checks { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 10px; }
+  .checks label { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+  .checks input { accent-color: var(--pine); width: 15px; height: 15px; }
+
+  .auth-wrap { max-width: 400px; margin: 0 auto; padding: 56px 28px; }
+  .auth-wrap h1 { font-family: var(--display); font-size: 24px; font-weight: 900; }
+  .auth-wrap .desc { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .auth-box { margin-top: 22px; }
+  .auth-switch { margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--muted); }
+  .auth-switch a { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+
+  .empty {
+    border: 1px dashed var(--hairline-strong); border-radius: var(--radius);
+    padding: 36px 20px; text-align: center; color: var(--muted); font-size: 13px; background: var(--surface);
+  }
+  .empty .act { margin-top: 10px; font-size: 12.5px; color: var(--ink-soft); }
+
+  .skel { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); padding: 18px 20px; }
+  .skel .b { background: linear-gradient(0deg, var(--surface-2), var(--surface-2)); border-radius: 1px; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  @media (prefers-reduced-motion: reduce) { .skel .b { animation: none; } }
+
+  .dark-strip { background: #141A16; border-radius: var(--radius); border: 1px solid #2C362E; padding: 0; overflow: hidden; }
+  .dark-strip .site-header { background: #141A16; border-color: #2C362E; }
+  .dark-strip .brand .name { color: #ECEEE8; }
+  .dark-strip .brand .mark { background: #3E6A4E; }
+  .dark-strip .site-nav { color: #B9C2B4; }
+  .dark-strip .site-nav .sep { background: #2C362E; }
+  .dark-strip .inner { padding: 26px 28px; }
+  .dark-strip .rcard { background: #1C241E; border-color: #2C362E; }
+  .dark-strip .rcard-shoe, .dark-strip .rcard-score .n { color: #ECEEE8; }
+  .dark-strip .rcard-author { color: #8B9586; }
+  .dark-strip .rcard-author a { color: #B9C2B4; }
+  .dark-strip .rcard-excerpt { color: #B9C2B4; }
+  .dark-strip .rcard-foot { border-color: #2C362E; }
+  .dark-strip .rcard-score .of, .dark-strip .rcard-foot .date { color: #77816F; }
+
+  .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .swatch { border: 1px solid var(--hairline-strong); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+  .swatch .c { height: 64px; }
+  .swatch .t { padding: 8px 10px; border-top: 1px solid var(--hairline); }
+  .swatch .t b { font-size: 12px; display: block; }
+  .swatch .t span { font-family: var(--mono); font-size: 10.5px; color: var(--muted); }
+
+  .type-samples { border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); }
+  .type-samples > div { padding: 14px 20px; border-top: 1px solid var(--hairline); display: flex; align-items: baseline; gap: 24px; }
+  .type-samples > div:first-child { border-top: 0; }
+  .type-samples .tag { width: 150px; flex-shrink: 0; }
+
+  .mobile { width: 390px; flex: none; }
+  .mobile .site-header { padding: 0 16px; }
+  .mobile .page-pad { padding: 22px 16px 32px; }
+  .mobile .hero { grid-template-columns: 1fr; padding: 28px 16px; gap: 22px; }
+  .mobile .hero h1 { font-size: 27px; }
+  .mobile .specgrid { grid-template-columns: repeat(2, 1fr); }
+  .mobile .filter-grid { grid-template-columns: repeat(2, 1fr); }
+  .mobile .shoe-grid { grid-template-columns: 1fr; }
+  .mobile .detail-top { grid-template-columns: 1fr; }
+  .mobile .agg-row { grid-template-columns: 1fr; }
+  .mobile .form-grid, .mobile .form-grid.c2 { grid-template-columns: 1fr; }
+  .mobile-menu { border-top: 1px solid var(--hairline); background: var(--paper); }
+  .mobile-menu a { display: flex; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--hairline); font-size: 14px; }
+  .mobile-menu a .mono { font-size: 11px; color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+  .legend b { color: var(--ink-soft); font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .hero, .detail-top { grid-template-columns: 1fr; }
+    .specgrid { grid-template-columns: repeat(2, 1fr); }
+    .filter-grid { grid-template-columns: repeat(2, 1fr); }
+    .shoe-grid { grid-template-columns: 1fr; }
+    .agg-row { grid-template-columns: 1fr; }
+    .swatches { grid-template-columns: repeat(2, 1fr); }
+    .audit { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="board">
+
+  <header class="board-head">
+    <div class="kicker">
+      <span class="micro">UI REDESIGN · DESIGN BOARD</span>
+      <span class="micro" style="color: var(--accent)">V1 · 待评审</span>
+    </div>
+    <h1>攀岩鞋试穿体验平台 · 山系重设计</h1>
+    <p class="read">
+      Design Read：社区产品应用（非营销落地页），面向攀岩爱好者的试穿记录工具，Forest 山系语言，
+      落在 shadcn/ui + Tailwind v4 token 体系上。借参考图的「hairline 分隔 · spec 网格 · mono 数据 · rating 细条」视觉语法，布局按产品页自行设计。
+    </p>
+    <div class="dials">
+      <div><span class="micro">DESIGN_VARIANCE</span><b>6</b></div>
+      <div><span class="micro">MOTION_INTENSITY</span><b>3</b></div>
+      <div><span class="micro">VISUAL_DENSITY</span><b>5</b></div>
+    </div>
+    <div class="audit">
+      <div class="keep">
+        <h3>现有 UI · 保留</h3>
+        <ul>
+          <li>信息架构与全部路由、页面职责不变</li>
+          <li>E2E 依赖的文案：按钮（筛选/清空/注册/登录/退出/写测评）、表单标签、role="alert" 错误</li>
+          <li>领域术语：宽度楦型（鞋）/ 脚宽窄（脚）等 CONTEXT.md 词汇</li>
+          <li>空态提示文案（「还没有测评，聚合数据会在首条测评后出现」等）</li>
+        </ul>
+      </div>
+      <div class="retire">
+        <h3>现有 UI · 替换</h3>
+        <ul>
+          <li>Inter + 纯中性灰 token → Space Grotesk / IBM Plex Mono / Noto Sans SC + 山系色板</li>
+          <li>圆角卡片 + shadow-sm 堆叠 → hairline 细线分组、统一 2px 直角、无阴影</li>
+          <li>居中 hero → 左对齐非对称 hero + 数据条</li>
+          <li>dl 行式参数表 → spec 网格（小标签 + 大数值，细线分栏）</li>
+          <li>评分数字裸排 → rating 细条 + mono 数值；尺码差值用唯一 accent 强调</li>
+          <li>无图标 → @phosphor-icons/react（统一 strokeWidth 1.5）</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">00</span>
+      <h2>设计 Token</h2>
+      <span class="path">globals.css · layout.tsx</span>
+    </div>
+
+    <p class="section-note">单一 accent 全站锁定（COLOR CONSISTENCY LOCK）：trail orange 只用于尺码差值、rating 条、激活态与主 CTA。
+    统一 2px 直角（SHAPE LOCK）。无渐变、无玻璃拟态、无黑阴影；:active 一律 scale(0.98)。拉丁 display 用 Space Grotesk，数据一律 IBM Plex Mono，中文 Noto Sans SC（标题重字重 900）。</p>
+
+    <div class="swatches">
+      <div class="swatch"><div class="c" style="background:#F3F4F0"></div><div class="t"><b>纸面 bone</b><span>--paper #F3F4F0 · 冷调石白</span></div></div>
+      <div class="swatch"><div class="c" style="background:#FAFAF7"></div><div class="t"><b>表面 surface</b><span>--surface #FAFAF7</span></div></div>
+      <div class="swatch"><div class="c" style="background:#161C17"></div><div class="t"><b>墨色 ink</b><span>#161C17 · 近黑深松绿，禁纯黑</span></div></div>
+      <div class="swatch"><div class="c" style="background:#2E4A38"></div><div class="t"><b>主色 pine</b><span>#2E4A38 · 链接/聚焦/次按钮</span></div></div>
+      <div class="swatch"><div class="c" style="background:#C2410C"></div><div class="t"><b>唯一 accent</b><span>#C2410C · trail orange（对白 4.8:1）</span></div></div>
+      <div class="swatch"><div class="c" style="background:#6A7266"></div><div class="t"><b>辅助文字 granite</b><span>#6A7266 · 灰绿</span></div></div>
+      <div class="swatch"><div class="c" style="background:#DADDD2"></div><div class="t"><b>hairline</b><span>#DADDD2 · 1px 细线</span></div></div>
+      <div class="swatch"><div class="c" style="background:#C0C6B6"></div><div class="t"><b>hairline-strong</b><span>#C0C6B6 · 输入框/外框</span></div></div>
+      <div class="swatch"><div class="c" style="background:#141A16"></div><div class="t"><b>暗色底</b><span>#141A16 · 深松绿近黑</span></div></div>
+      <div class="swatch"><div class="c" style="background:#A63A2E"></div><div class="t"><b>destructive</b><span>#A63A2E · 仅删除操作</span></div></div>
+    </div>
+
+    <div class="type-samples" style="margin-top: 20px;">
+      <div>
+        <span class="tag micro">DISPLAY · 页面标题</span>
+        <span style="font-family: var(--display); font-size: 30px; font-weight: 900; letter-spacing: -0.015em;">Miura 系带版</span>
+      </div>
+      <div>
+        <span class="tag micro">BODY · 正文</span>
+        <span style="font-size: 14px; color: var(--ink-soft);">鞋头包裹紧实，小脚点踩踏精准，适合难度线路与馆内全能训练。</span>
+      </div>
+      <div>
+        <span class="tag micro">MONO · 数据</span>
+        <span class="mono" style="font-size: 14px; font-weight: 600;">EU 41.5 · ¥1180 · 4.5 / 5 · 2026-07-28</span>
+      </div>
+      <div>
+        <span class="tag micro">MICRO · 技术标签</span>
+        <span class="micro">LA SPORTIVA · SPEC 规格 · FIT RATING 合身度</span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px;">
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>按钮 · 状态</span></div>
+        <div class="frame-body" style="padding: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+          <button class="btn btn-primary">写测评</button>
+          <button class="btn btn-primary" style="background: var(--accent-hover)">hover</button>
+          <button class="btn btn-primary" style="transform: scale(0.98)">active</button>
+          <button class="btn btn-primary is-focus">focus-visible</button>
+          <button class="btn btn-outline">编辑我的测评</button>
+          <button class="btn btn-outline is-hover-outline">hover</button>
+          <button class="btn btn-ghost">退出</button>
+          <button class="btn btn-danger btn-sm">删除测评</button>
+          <button class="btn btn-primary" disabled style="opacity: .5">保存中…</button>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>输入 · 状态</span></div>
+        <div class="frame-body" style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div class="field"><label>用户名或邮箱</label><input class="input" placeholder="请输入"></div>
+          <div class="field"><label>focus 态</label><input class="input is-focus" value="climber_wu"></div>
+          <div class="field"><label>宽度楦型</label><select class="input"><option>全部楦型</option></select></div>
+          <div class="field"><label>错误态</label><input class="input" style="border-color: var(--destructive); box-shadow: 0 0 0 3px rgba(166,58,46,.12)" value="ab"><span style="font-size:11.5px;color:var(--destructive)">用户名至少 3 个字符</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px;">
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>rating 条 · 尺码盒 · 差值 chip</span></div>
+        <div class="frame-body" style="padding: 20px; display: grid; gap: 16px;">
+          <div class="bar-row"><span class="lbl">综合推荐指数</span><span class="bar-track"><span class="bar-fill" style="width: 90%"></span></span><span class="val">4.5</span></div>
+          <div class="bar-row thin"><span class="lbl">摩擦</span><span class="bar-track"><span class="bar-fill" style="width: 92%"></span></span><span class="val">4.6</span></div>
+          <div class="sizebox">
+            <span><span class="k">街鞋 · STREET</span><b>EU 42</b></span>
+            <span class="arrow">→</span>
+            <span><span class="k">本款 · THIS MODEL</span><b>EU 41</b></span>
+            <span class="chip" style="margin-left: auto">比日常小 1 码</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <span class="chip">比日常小 2 码</span>
+            <span class="chip">比日常小半码</span>
+            <span class="chip">与日常码相同</span>
+          </div>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>空态 · 骨架屏</span></div>
+        <div class="frame-body" style="padding: 20px; display: grid; gap: 16px;">
+          <div class="empty">
+            还没有测评，聚合数据会在首条测评后出现
+            <div class="act">试穿过后来分享你的体验吧</div>
+          </div>
+          <div class="skel">
+            <div class="b" style="width: 96px; height: 9px;"></div>
+            <div class="b" style="width: 180px; height: 15px; margin-top: 10px;"></div>
+            <div class="b" style="width: 100%; height: 34px; margin-top: 14px;"></div>
+            <div class="b" style="width: 92%; height: 10px; margin-top: 14px;"></div>
+            <div class="b" style="width: 70%; height: 10px; margin-top: 7px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">01</span>
+      <h2>全局 Shell · 页头</h2>
+      <span class="path">components/site-header.tsx</span>
+    </div>
+    <p class="section-note">桌面端单行导航（高度 60px）；移动端汉堡菜单展开为全宽面板，hairline 分组。品牌标 = 26px pine 色块 + 山形几何标记（最终实现用 @phosphor-icons/react 的 Mountain 图标，禁手绘路径）。</p>
+
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>桌面 · 未登录</span></div>
+      <div class="site-header">
+        <a class="brand" href="#">
+          <span class="mark">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg>
+          </span>
+          <span><span class="name">攀岩鞋试穿体验平台</span><span class="sub">TRIAL · FIT · LOG</span></span>
+        </a>
+        <nav class="site-nav">
+          <a href="#">鞋库</a>
+          <span class="sep"></span>
+          <a href="#">登录</a>
+          <a href="#" class="btn btn-primary btn-sm" style="color:#FFF8F2">注册</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>桌面 · 已登录</span></div>
+      <div class="site-header">
+        <a class="brand" href="#">
+          <span class="mark">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg>
+          </span>
+          <span><span class="name">攀岩鞋试穿体验平台</span><span class="sub">TRIAL · FIT · LOG</span></span>
+        </a>
+        <nav class="site-nav">
+          <a href="#">鞋库</a>
+          <span class="sep"></span>
+          <a href="#" class="user">climber_wu</a>
+          <a href="#">脚型档案</a>
+          <a href="#">退出</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="frame mobile">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>移动 · 收起</span></div>
+        <div class="site-header">
+          <a class="brand" href="#">
+            <span class="mark"><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg></span>
+            <span><span class="name">攀岩鞋试穿体验平台</span></span>
+          </a>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#161C17" stroke-width="1.5"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+        </div>
+      </div>
+      <div class="frame mobile">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>移动 · 展开（已登录）</span></div>
+        <div class="site-header" style="border-bottom: 0;">
+          <a class="brand" href="#">
+            <span class="mark"><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg></span>
+            <span><span class="name">攀岩鞋试穿体验平台</span></span>
+          </a>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#161C17" stroke-width="1.5"><path d="M5 5l10 10M15 5L5 15"/></svg>
+        </div>
+        <nav class="mobile-menu">
+          <a href="#">鞋库 <span class="mono">SHOES</span></a>
+          <a href="#" style="font-weight:700">climber_wu <span class="mono">PROFILE</span></a>
+          <a href="#">脚型档案 <span class="mono">FOOT DATA</span></a>
+          <a href="#">退出 <span class="mono">SIGN OUT</span></a>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">02</span>
+      <h2>首页</h2>
+      <span class="path">app/page.tsx</span>
+    </div>
+    <p class="section-note">左对齐非对称 hero（7:5）：左侧标题 + 双 CTA，右侧 mono 数据条（收录鞋款 / 测评 / 脚型档案，真实聚合数）。下方「最新测评」流复用测评卡片。已登录时隐藏注册 CTA（保留现有行为）。</p>
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/ · 未登录</span></div>
+      <div class="site-header">
+        <a class="brand" href="#">
+          <span class="mark"><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg></span>
+          <span><span class="name">攀岩鞋试穿体验平台</span><span class="sub">TRIAL · FIT · LOG</span></span>
+        </a>
+        <nav class="site-nav">
+          <a href="#">鞋库</a><span class="sep"></span><a href="#">登录</a>
+          <a href="#" class="btn btn-primary btn-sm" style="color:#FFF8F2">注册</a>
+        </nav>
+      </div>
+      <div class="hero">
+        <div>
+          <span class="micro">社区 · COMMUNITY LOG</span>
+          <h1>攀岩鞋试穿体验平台</h1>
+          <p class="sub">记录真实试穿体验，按脚型与场景找到合脚的那双鞋</p>
+          <div class="ctas">
+            <a href="#" class="btn btn-primary">浏览鞋库</a>
+            <a href="#" class="btn btn-outline">注册并记录你的脚型</a>
+          </div>
+        </div>
+        <div class="stat-strip">
+          <div><span class="micro">收录鞋款</span><b>12</b></div>
+          <div><span class="micro">测评</span><b>28</b></div>
+          <div><span class="micro">脚型档案</span><b>19</b></div>
+        </div>
+      </div>
+      <div class="page-pad">
+        <div class="sec-title-row">
+          <h2>最新测评</h2>
+          <a class="more" href="#">去鞋库找一双 →</a>
+        </div>
+        <div style="display: grid; gap: 14px;">
+          <article class="rcard">
+            <div class="rcard-top">
+              <div>
+                <span class="micro">LA SPORTIVA</span>
+                <h3 class="rcard-shoe"><a href="#">Miura 系带版</a></h3>
+                <p class="rcard-author">by <a href="#">climber_wu</a> · 窄脚 · 高足弓 · 正常脚背 · 窄脚后跟 · 无拇外翻</p>
+              </div>
+              <div class="rcard-score">
+                <span class="micro">综合</span>
+                <span class="n">4.5</span>
+                <span class="of">/ 5</span>
+              </div>
+            </div>
+            <p class="rcard-excerpt">鞋头包裹非常紧，小脚点踩踏精准，但前掌压迫感明显，长时间攀爬需要适应。系带系统可以把脚跟锁得很死，难度线路表现稳定。</p>
+            <div class="rcard-foot">
+              <a href="#">查看完整测评 →</a>
+              <span class="date">2026-07-28</span>
+            </div>
+          </article>
+          <article class="rcard">
+            <div class="rcard-top">
+              <div>
+                <span class="micro">SCARPA</span>
+                <h3 class="rcard-shoe"><a href="#">Instinct VS</a></h3>
+                <p class="rcard-author">by <a href="#">a_yan</a> · 宽脚 · 正常足弓 · 正常脚背 · 中脚后跟 · 无拇外翻</p>
+              </div>
+              <div class="rcard-score">
+                <span class="micro">综合</span>
+                <span class="n">4.2</span>
+                <span class="of">/ 5</span>
+              </div>
+            </div>
+            <p class="rcard-excerpt">抱石利器，前掌敏感度高，魔术贴穿脱快。偏软，大点踩久了脚底会累，馆内全能场景更合适。</p>
+            <div class="rcard-foot">
+              <a href="#">查看完整测评 →</a>
+              <span class="date">2026-07-25</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">03</span>
+      <h2>鞋库</h2>
+      <span class="path">app/shoes/page.tsx</span>
+    </div>
+    <p class="section-note">筛选面板为 hairline 盒，4 列网格；「按脚型筛选」用 hairline 上分隔成第二组。结果卡片：占位图槽（最终换真图）+ 品牌 micro 标签 + display 型号 + mono 价格 + hairline 分隔的规格行；命中脚型筛选时显示 accent 匹配均分。</p>
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/shoes · 含脚型筛选命中</span></div>
+      <div class="page-pad">
+        <div style="display: flex; align-items: baseline; justify-content: space-between;">
+          <div>
+            <h1 class="page-title">鞋库</h1>
+            <p class="page-sub">按鞋款属性或测评者脚型筛选</p>
+          </div>
+          <span class="mono" style="font-size: 12px; color: var(--muted);">共 12 款 · 按匹配脚型测评者的平均分排序</span>
+        </div>
+
+        <div class="filter-panel" style="margin-top: 18px;">
+          <div class="filter-grid">
+            <div class="field"><label>品牌</label><select class="input"><option>全部品牌</option></select></div>
+            <div class="field"><label>使用场景</label><select class="input"><option>全部场景</option></select></div>
+            <div class="field"><label>硬度</label><select class="input"><option>全部硬度</option></select></div>
+            <div class="field"><label>宽度楦型</label><select class="input"><option>中</option></select></div>
+            <div class="field"><label>定位等级</label><select class="input"><option>全部定位</option></select></div>
+            <div class="field" style="grid-column: span 2;"><label>价格区间（元）</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input class="input" placeholder="最低"><span style="color:var(--muted)">–</span><input class="input" placeholder="最高">
+              </div>
+            </div>
+            <div class="filter-actions">
+              <button class="btn btn-primary" style="flex:1">筛选</button>
+              <button class="btn btn-outline">清空</button>
+            </div>
+            <p class="filter-group-label">按脚型筛选<span>找出符合脚型的测评者评过的鞋，按他们的平均分排序</span></p>
+            <div class="field"><label>脚型</label><select class="input"><option>埃及脚</option></select></div>
+            <div class="field"><label>脚宽窄</label><select class="input"><option>全部脚宽窄</option></select></div>
+            <div class="field"><label>脚后跟</label><select class="input"><option>全部脚后跟</option></select></div>
+          </div>
+        </div>
+
+        <div class="shoe-grid" style="margin-top: 22px;">
+          <a class="shoe-card" href="#">
+            <div class="img"><span class="micro">IMG · 主图 800×600</span><span class="micro" style="font-size:9px">待真图</span></div>
+            <div class="body">
+              <span class="micro">LA SPORTIVA</span>
+              <h3>Miura 系带版</h3>
+              <p class="price">¥1180</p>
+              <p class="match">匹配脚型均分 4.0 · 2 人评过</p>
+              <p class="specs">难度 · 馆内全能 · 硬 · 中楦 · 进阶</p>
+            </div>
+          </a>
+          <a class="shoe-card" href="#">
+            <div class="img"><span class="micro">IMG · 主图 800×600</span><span class="micro" style="font-size:9px">待真图</span></div>
+            <div class="body">
+              <span class="micro">SCARPA</span>
+              <h3>Instinct VS</h3>
+              <p class="price">¥1280</p>
+              <p class="match">匹配脚型均分 3.5 · 2 人评过</p>
+              <p class="specs">抱石 · 馆内全能 · 中 · 中楦 · 进阶</p>
+            </div>
+          </a>
+          <a class="shoe-card" href="#">
+            <div class="img"><span class="micro">IMG · 主图 800×600</span><span class="micro" style="font-size:9px">待真图</span></div>
+            <div class="body">
+              <span class="micro">LA SPORTIVA</span>
+              <h3>Katana</h3>
+              <p class="price">¥1380</p>
+              <p class="specs">馆内全能 · 难度 · 中 · 中楦 · 进阶</p>
+            </div>
+          </a>
+        </div>
+
+        <div class="empty" style="margin-top: 22px;">
+          没有找到匹配的鞋款，试试调整筛选条件
+          <div class="act"><a href="#" style="text-decoration: underline; text-underline-offset: 3px;">清空全部筛选</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">04</span>
+      <h2>鞋款详情 · 主战场</h2>
+      <span class="path">app/shoes/[id]/page.tsx</span>
+    </div>
+    <p class="section-note">顶部 5:6 非对称：左图右信息。参数用 spec 网格（4 列，gap 1px hairline 分栏，小 micro 标签 + 大数值）。聚合区三块并排一行（hairline 竖分栏，信息集中）：维度均分（综合推荐指数数字 + 6 维雷达图，SVG accent 填充）· 尺码偏移（结论句 accent 强调占比 + 分布条）· 合身度反馈（每部位一行，最高项 accent 高亮）；移动端三块竖向堆叠。E2E 结构与文案不变：section「测评数据」内含 h3「维度均分 / 尺码偏移」与 h4 部位名，li 行结构保留（雷达图配 sr-only 维度列表）。</p>
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/shoes/1 · 有测评 · 未筛选脚型</span></div>
+      <div class="page-pad">
+        <a class="backlink" href="#">← 返回鞋库</a>
+
+        <div class="detail-top" style="margin-top: 18px;">
+          <div class="detail-img">
+            <span class="micro">IMG · 鞋款主图 800×600</span>
+            <span class="micro" style="font-size: 9px;">占位槽 · 交付时换真图</span>
+          </div>
+          <div>
+            <span class="micro">LA SPORTIVA · SPEC 规格</span>
+            <h1 class="detail-model">Miura 系带版</h1>
+            <p class="detail-price mono">¥1180</p>
+            <p class="detail-desc">经典系带全能型攀岩鞋，硬底支撑适合小脚点站立与长线路，鞋头精准。</p>
+            <div class="specgrid" style="margin-top: 18px;">
+              <div><span class="micro">使用场景</span><p class="v">难度、馆内全能</p></div>
+              <div><span class="micro">硬度</span><p class="v">硬</p></div>
+              <div><span class="micro">宽度楦型</span><p class="v">中</p></div>
+              <div><span class="micro">定位等级</span><p class="v">进阶</p></div>
+              <div><span class="micro">下压程度</span><p class="v">适度</p></div>
+              <div><span class="micro">闭合方式</span><p class="v">系带</p></div>
+              <div><span class="micro">鞋面材质</span><p class="v">翻毛皮</p></div>
+              <div><span class="micro">参考价</span><p class="v mono">¥1180</p></div>
+            </div>
+            <div style="margin-top: 18px; display: flex; gap: 10px;">
+              <a href="#" class="btn btn-primary">写测评</a>
+              <a href="#" class="btn btn-outline">编辑我的测评</a>
+            </div>
+          </div>
+        </div>
+
+        <section style="margin-top: 44px;">
+          <h2 style="font-family: var(--display); font-size: 20px; font-weight: 700;">测评数据</h2>
+          <p class="page-sub" style="margin-top: 4px;">可按测评者的脚型条件筛选，聚合结果只统计匹配脚型的测评</p>
+
+          <div class="filter-panel" style="margin-top: 16px;">
+            <div class="filter-grid">
+              <div class="field"><label>脚型</label><select class="input"><option>全部脚型</option></select></div>
+              <div class="field"><label>脚宽窄</label><select class="input"><option>全部脚宽窄</option></select></div>
+              <div class="field"><label>脚后跟</label><select class="input"><option>全部脚后跟</option></select></div>
+              <div class="filter-actions">
+                <button class="btn btn-primary" style="flex:1">筛选</button>
+                <button class="btn btn-outline">清空</button>
+              </div>
+            </div>
+          </div>
+
+          <p class="mono" style="margin-top: 20px; font-size: 12px; color: var(--muted);">基于 12 条测评</p>
+
+          <div class="agg-row">
+          <section class="agg-cell">
+            <h3>维度均分</h3>
+            <ul class="sr-only">
+              <li>综合推荐指数 4.3</li>
+              <li>包裹性 4.5</li>
+              <li>舒适 3.2</li>
+              <li>精准度 4.4</li>
+              <li>灵敏度 3.8</li>
+              <li>摩擦 4.6</li>
+              <li>支撑 4.0</li>
+            </ul>
+            <div class="overall-line">
+              <span class="micro">综合推荐指数 · OVERALL</span>
+              <span class="num mono">4.3<span class="of"> / 5</span></span>
+            </div>
+                <svg viewBox="0 0 300 262" role="img" aria-label="六维度均分雷达图" style="width: 100%; max-width: 264px; height: auto; margin-top: 10px;">
+                  <g fill="none" stroke="#DADDD2" stroke-width="1">
+                    <polygon points="150,123 164.7,131.5 164.7,148.5 150,157 135.3,148.5 135.3,131.5"/>
+                    <polygon points="150,106 179.4,123 179.4,157 150,174 120.6,157 120.6,123"/>
+                    <polygon points="150,89 194.2,114.5 194.2,165.5 150,191 105.8,165.5 105.8,114.5"/>
+                    <polygon points="150,72 208.9,106 208.9,174 150,208 91.1,174 91.1,106"/>
+                    <polygon points="150,55 223.6,97.5 223.6,182.5 150,225 76.4,182.5 76.4,97.5"/>
+                    <path d="M150 140 L150 55 M150 140 L223.6 97.5 M150 140 L223.6 182.5 M150 140 L150 225 M150 140 L76.4 182.5 M150 140 L76.4 97.5"/>
+                  </g>
+                  <polygon points="150,63.5 197.1,112.8 214.8,177.4 150,204.6 82.3,179.1 91.1,106" fill="rgba(194,65,12,0.10)" stroke="#C2410C" stroke-width="1.5"/>
+                  <g fill="#C2410C">
+                    <circle cx="150" cy="63.5" r="2.5"/>
+                    <circle cx="197.1" cy="112.8" r="2.5"/>
+                    <circle cx="214.8" cy="177.4" r="2.5"/>
+                    <circle cx="150" cy="204.6" r="2.5"/>
+                    <circle cx="82.3" cy="179.1" r="2.5"/>
+                    <circle cx="91.1" cy="106" r="2.5"/>
+                  </g>
+                  <g font-size="11" fill="#6A7266">
+                    <text x="150" y="32" text-anchor="middle">包裹性 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.5</tspan></text>
+                    <text x="232" y="95" text-anchor="start">舒适 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">3.2</tspan></text>
+                    <text x="232" y="188" text-anchor="start">精准度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.4</tspan></text>
+                    <text x="150" y="250" text-anchor="middle">灵敏度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">3.8</tspan></text>
+                    <text x="68" y="188" text-anchor="end">摩擦 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.6</tspan></text>
+                    <text x="68" y="95" text-anchor="end">支撑 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.0</tspan></text>
+                  </g>
+                </svg>
+          </section>
+
+          <section class="agg-cell">
+            <h3>尺码偏移</h3>
+            <p class="size-headline">
+              <b class="mono" style="color: var(--accent);">67%</b> 用户选择比日常小 1 码
+            </p>
+            <ul class="size-bars">
+              <li class="bar-row"><span class="lbl">比日常小 1 码</span><span class="bar-track"><span class="bar-fill" style="width: 67%"></span></span><span class="sub">67% · 8 条</span></li>
+              <li class="bar-row"><span class="lbl">比日常小半码</span><span class="bar-track"><span class="bar-fill" style="width: 25%"></span></span><span class="sub">25% · 3 条</span></li>
+              <li class="bar-row"><span class="lbl">比日常小 1 码半</span><span class="bar-track"><span class="bar-fill" style="width: 8%"></span></span><span class="sub">8% · 1 条</span></li>
+            </ul>
+          </section>
+
+          <section class="agg-cell">
+            <h3>合身度反馈</h3>
+            <div class="fit-rows">
+              <section class="fit-row">
+                <h4>脚跟</h4>
+                <ul>
+                  <li class="top">贴合 58%</li>
+                  <li>略松 25%</li>
+                  <li>脚跟空 8%</li>
+                  <li>磨脚跟 8%</li>
+                </ul>
+              </section>
+              <section class="fit-row">
+                <h4>脚趾</h4>
+                <ul>
+                  <li class="top">自然微蜷 50%</li>
+                  <li>挤压 33%</li>
+                  <li>自然 17%</li>
+                </ul>
+              </section>
+              <section class="fit-row">
+                <h4>脚背</h4>
+                <ul>
+                  <li class="top">合适 75%</li>
+                  <li>压迫 25%</li>
+                </ul>
+              </section>
+              <section class="fit-row">
+                <h4>前掌</h4>
+                <ul>
+                  <li class="top">挤压 50%</li>
+                  <li>舒适 42%</li>
+                  <li>疼痛 8%</li>
+                </ul>
+              </section>
+              <section class="fit-row">
+                <h4>足弓</h4>
+                <ul>
+                  <li class="top">正常 92%</li>
+                  <li>疼痛 8%</li>
+                </ul>
+              </section>
+              <section class="fit-row">
+                <h4>透气</h4>
+                <ul>
+                  <li class="top">一般 58%</li>
+                  <li>透气 33%</li>
+                  <li>闷热 8%</li>
+                </ul>
+              </section>
+            </div>
+          </section>
+          </div>
+        </section>
+
+        <section style="margin-top: 44px;">
+          <div class="sec-title-row">
+            <h2>测评（12）</h2>
+          </div>
+          <div style="display: grid; gap: 14px;">
+            <article class="rcard">
+              <div class="rcard-top">
+                <div>
+                  <p class="rcard-author" style="margin-top:0"><a href="#">climber_wu</a> · 窄脚 · 高足弓 · 正常脚背 · 窄脚后跟 · 无拇外翻</p>
+                </div>
+                <div class="rcard-score">
+                  <span class="micro">综合</span>
+                  <span class="n">4.5</span>
+                  <span class="of">/ 5</span>
+                </div>
+              </div>
+              <p class="rcard-excerpt">鞋头包裹非常紧，小脚点踩踏精准，但前掌压迫感明显，长时间攀爬需要适应。系带系统可以把脚跟锁得很死。</p>
+              <div class="rcard-foot">
+                <a href="#">查看完整测评 →</a>
+                <span class="date">2026-07-28</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">05</span>
+      <h2>测评详情</h2>
+      <span class="path">app/reviews/[id]/page.tsx</span>
+    </div>
+    <p class="section-note">单列窄版心（max-w-3xl）。尺码信息用尺码盒（日常码 → 试穿 + accent 差值 chip）；维度评分与鞋详情同构（综合推荐指数数字 + 6 维雷达图，单人分值）；合身度 / 使用背景用 kv hairline 列表；优点 / 缺点为并排 hairline 盒。</p>
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/reviews/1 · 作者本人视角（含编辑/删除）</span></div>
+      <div class="page-pad" style="max-width: 760px;">
+        <a class="backlink" href="#">← 返回鞋款详情</a>
+        <div style="margin-top: 16px;">
+          <span class="micro">LA SPORTIVA · MIURA 系带版</span>
+          <h1 class="page-title" style="margin-top: 4px;"><a href="#" style="text-decoration: underline; text-underline-offset: 4px;">climber_wu</a> 的测评</h1>
+          <p class="mono" style="font-size: 11.5px; color: var(--muted); margin-top: 6px;">发布于 2026年7月28日</p>
+        </div>
+        <div style="margin-top: 16px; display: flex; gap: 10px;">
+          <a href="#" class="btn btn-outline btn-sm">编辑测评</a>
+          <button class="btn btn-danger btn-sm">删除测评</button>
+        </div>
+
+        <section style="margin-top: 32px;">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">尺码信息</h3>
+          <div class="sizebox">
+            <span><span class="k">日常码 · STREET</span><b>EU 42</b></span>
+            <span class="arrow">→</span>
+            <span><span class="k">试穿 · TRIED</span><b>EU 41</b></span>
+            <span class="chip" style="margin-left: auto">比日常小 1 码</span>
+          </div>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">维度评分</h3>
+          <div class="agg-row" style="grid-template-columns: 1fr; margin-top: 0;">
+            <section class="agg-cell">
+              <ul class="sr-only">
+                <li>综合推荐指数 5 分</li>
+                <li>包裹性 5 分</li>
+                <li>舒适 3 分</li>
+                <li>精准度 5 分</li>
+                <li>灵敏度 4 分</li>
+                <li>摩擦 5 分</li>
+                <li>支撑 4 分</li>
+              </ul>
+              <div class="overall-line">
+                <span class="micro">综合推荐指数 · OVERALL</span>
+                <span class="num mono">5<span class="of"> / 5</span></span>
+              </div>
+              <svg viewBox="0 0 300 262" role="img" aria-label="六维度评分雷达图" style="width: 100%; max-width: 280px; height: auto; margin-top: 10px;">
+                <g fill="none" stroke="#DADDD2" stroke-width="1">
+                  <polygon points="150,123 164.7,131.5 164.7,148.5 150,157 135.3,148.5 135.3,131.5"/>
+                  <polygon points="150,106 179.4,123 179.4,157 150,174 120.6,157 120.6,123"/>
+                  <polygon points="150,89 194.2,114.5 194.2,165.5 150,191 105.8,165.5 105.8,114.5"/>
+                  <polygon points="150,72 208.9,106 208.9,174 150,208 91.1,174 91.1,106"/>
+                  <polygon points="150,55 223.6,97.5 223.6,182.5 150,225 76.4,182.5 76.4,97.5"/>
+                  <path d="M150 140 L150 55 M150 140 L223.6 97.5 M150 140 L223.6 182.5 M150 140 L150 225 M150 140 L76.4 182.5 M150 140 L76.4 97.5"/>
+                </g>
+                <polygon points="150,55 194.2,114.5 223.6,182.5 208.9,174 76.4,182.5 91.1,106" fill="rgba(194,65,12,0.10)" stroke="#C2410C" stroke-width="1.5"/>
+                <g fill="#C2410C">
+                  <circle cx="150" cy="55" r="2.5"/>
+                  <circle cx="194.2" cy="114.5" r="2.5"/>
+                  <circle cx="223.6" cy="182.5" r="2.5"/>
+                  <circle cx="208.9" cy="174" r="2.5"/>
+                  <circle cx="76.4" cy="182.5" r="2.5"/>
+                  <circle cx="91.1" cy="106" r="2.5"/>
+                </g>
+                <g font-size="11" fill="#6A7266">
+                  <text x="150" y="32" text-anchor="middle">包裹性 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">5</tspan></text>
+                  <text x="232" y="95" text-anchor="start">舒适 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">3</tspan></text>
+                  <text x="232" y="188" text-anchor="start">精准度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">5</tspan></text>
+                  <text x="150" y="250" text-anchor="middle">灵敏度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4</tspan></text>
+                  <text x="68" y="188" text-anchor="end">摩擦 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">5</tspan></text>
+                  <text x="68" y="95" text-anchor="end">支撑 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4</tspan></text>
+                </g>
+              </svg>
+            </section>
+          </div>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">合身度反馈</h3>
+          <dl class="kv-list">
+            <div><dt>脚跟</dt><dd>贴合</dd></div>
+            <div><dt>脚趾</dt><dd>自然微蜷</dd></div>
+            <div><dt>脚背</dt><dd>合适</dd></div>
+            <div><dt>前掌</dt><dd>挤压</dd></div>
+            <div><dt>足弓</dt><dd>正常</dd></div>
+            <div><dt>透气</dt><dd>一般</dd></div>
+          </dl>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px;">使用背景</h3>
+          <dl class="kv-list">
+            <div><dt>使用场景</dt><dd>难度、馆内全能</dd></div>
+            <div><dt>使用时长</dt><dd>1–3 个月</dd></div>
+          </dl>
+        </section>
+
+        <section style="margin-top: 32px;">
+          <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 10px;">文字体验</h3>
+          <p style="font-size: 13.5px; line-height: 1.9; color: var(--ink-soft);">鞋头包裹非常紧，小脚点踩踏精准，但前掌压迫感明显，长时间攀爬需要适应。系带系统可以把脚跟锁得很死，难度线路表现稳定。橡胶在室内板上摩擦力很好，户外砂岩还没试过。</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px;">
+            <div class="hairbox" style="padding: 14px 16px;">
+              <h4 style="font-size: 13px; font-weight: 700;">优点</h4>
+              <p style="font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.8;">踩踏精准，脚跟锁定好，系带可调范围广</p>
+            </div>
+            <div class="hairbox" style="padding: 14px 16px;">
+              <h4 style="font-size: 13px; font-weight: 700;">缺点</h4>
+              <p style="font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.8;">前掌压迫明显，穿脱比魔术贴慢</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="hairbox" style="margin-top: 32px; padding: 16px 18px;">
+          <h3 style="font-size: 13px; font-weight: 700;">作者脚型摘要</h3>
+          <p style="font-size: 13px; font-weight: 500; margin-top: 6px;">climber_wu</p>
+          <p style="font-size: 12px; color: var(--muted); margin-top: 2px;">窄脚 · 高足弓 · 正常脚背 · 窄脚后跟 · 无拇外翻</p>
+          <p class="mono" style="font-size: 11.5px; color: var(--muted); margin-top: 2px;">脚长 248 毫米 · 日常鞋码 EU 42 · 脚型 埃及脚</p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">06</span>
+      <h2>写测评 / 编辑测评</h2>
+      <span class="path">app/reviews/new · app/reviews/[id]/edit</span>
+    </div>
+    <p class="section-note">表单分节用 hairline 上分隔（不用卡片）。星级输入改为 accent orange（唯一 accent 用于评分类）。标签在上、输入在下，错误文案保持 role="alert" 单条中文提示。未填脚型档案时的拦截态保留。</p>
+    <div class="frame">
+      <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/reviews/new?shoe=1</span></div>
+      <div class="page-pad" style="max-width: 760px;">
+        <a class="backlink" href="#">← 返回鞋款详情</a>
+        <h1 class="page-title" style="margin-top: 14px;">写测评</h1>
+        <p class="page-sub" style="margin-top: 4px;">目标鞋款：La Sportiva Miura 系带版</p>
+
+        <div style="margin-top: 26px;">
+          <div class="form-sec">
+            <h3>尺码信息</h3>
+            <p class="hint">尺码偏移相对你的日常鞋码（EU）计算</p>
+            <div class="form-grid">
+              <div class="field"><label for="d-size">试穿尺码</label><input id="d-size" class="input" placeholder="如 41.5"></div>
+              <div class="field"><label>尺码体系</label><select class="input"><option disabled selected>请选择</option><option>EU</option></select></div>
+              <div class="field"><label>相对日常码的偏移</label><select class="input"><option disabled selected>请选择</option><option>比日常小 1 码</option></select></div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3>维度评分</h3>
+            <p class="hint">每项 1–5 分，5 分最好</p>
+            <div class="form-grid c2">
+              <div class="field"><label>包裹性</label><div class="stars"><span>★</span><span>★</span><span>★</span><span>★</span><span class="on">★</span></div></div>
+              <div class="field"><label>舒适</label><div class="stars"><span>★</span><span>★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span></div></div>
+              <div class="field"><label>精准度</label><div class="stars"><span>★</span><span>★</span><span>★</span><span>★</span><span class="on">★</span></div></div>
+              <div class="field"><label>灵敏度</label><div class="stars"><span>★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span><span class="on">★</span></div></div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3>合身度反馈</h3>
+            <p class="hint">按实际试穿感受单选</p>
+            <div class="form-grid c2">
+              <div class="field"><label>脚跟</label><select class="input"><option>贴合</option></select></div>
+              <div class="field"><label>脚趾</label><select class="input"><option>自然微蜷</option></select></div>
+              <div class="field"><label>脚背</label><select class="input"><option>合适</option></select></div>
+              <div class="field"><label>前掌</label><select class="input"><option>挤压</option></select></div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3>使用背景</h3>
+            <label style="font-size: 12.5px; color: var(--ink-soft); font-weight: 500; display: block; margin-top: 12px;">使用场景（可多选）</label>
+            <div class="checks">
+              <label><input type="checkbox" checked>馆内全能</label>
+              <label><input type="checkbox">抱石</label>
+              <label><input type="checkbox" checked>难度</label>
+              <label><input type="checkbox">传统多段</label>
+              <label><input type="checkbox">竞技</label>
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr; max-width: 320px;">
+              <div class="field"><label>使用时长</label><select class="input"><option>1–3 个月</option></select></div>
+            </div>
+          </div>
+
+          <div class="form-sec">
+            <h3>文字体验</h3>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+              <div class="field"><label>试穿体验</label><textarea class="input" rows="4" placeholder="这双鞋上脚的整体感受……"></textarea></div>
+            </div>
+            <div class="form-grid c2">
+              <div class="field"><label>优点（可选）</label><textarea class="input" rows="3"></textarea></div>
+              <div class="field"><label>缺点（可选）</label><textarea class="input" rows="3"></textarea></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 26px; display: flex; align-items: center; gap: 14px;">
+            <button class="btn btn-primary">发布测评</button>
+            <span style="font-size: 12px; color: var(--destructive);" role="alert">（错误示例）请选择相对日常码的尺码偏移</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">07</span>
+      <h2>登录 / 注册</h2>
+      <span class="path">app/login · app/register</span>
+    </div>
+    <p class="section-note">去掉 Card 阴影，改为 hairline 盒 + 左对齐标题。表单标签 / 按钮文案 / role="alert" 全部保留（E2E 依赖 getByLabel 与按钮名）。</p>
+    <div class="row">
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/login</span></div>
+        <div class="auth-wrap">
+          <span class="micro">SIGN IN</span>
+          <h1 style="margin-top: 6px;">登录</h1>
+          <p class="desc">使用用户名或邮箱登录</p>
+          <div class="auth-box" style="display: grid; gap: 14px;">
+            <div class="field"><label>用户名或邮箱</label><input class="input" value="climber_wu"></div>
+            <div class="field"><label>密码</label><input class="input" type="password" value="••••••••"></div>
+            <button class="btn btn-primary" style="width: 100%;">登录</button>
+          </div>
+          <p class="auth-switch">还没有账号？<a href="#">注册</a></p>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/register · 错误态</span></div>
+        <div class="auth-wrap">
+          <span class="micro">SIGN UP</span>
+          <h1 style="margin-top: 6px;">创建账号</h1>
+          <p class="desc">注册后即可记录与分享试穿体验</p>
+          <div class="auth-box" style="display: grid; gap: 14px;">
+            <div class="field"><label>用户名</label><input class="input" placeholder="3-30 位字母、数字或下划线" value="climber_other"></div>
+            <div class="field"><label>邮箱</label><input class="input" style="border-color: var(--destructive); box-shadow: 0 0 0 3px rgba(166,58,46,.12)" value="beta@example.com"></div>
+            <div class="field"><label>密码</label><input class="input" type="password" value="••••••••"></div>
+            <p role="alert" style="font-size: 12.5px; color: var(--destructive);">该邮箱已被注册</p>
+            <button class="btn btn-primary" style="width: 100%;">注册</button>
+          </div>
+          <p class="auth-switch">已有账号？<a href="#">登录</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">08</span>
+      <h2>用户主页 · 脚型档案</h2>
+      <span class="path">app/u/[username] · app/settings/profile</span>
+    </div>
+    <div class="row">
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/u/climber_wu</span></div>
+        <div class="page-pad">
+          <span class="micro">MEMBER · 脚型档案与测评</span>
+          <h1 class="page-title" style="margin-top: 6px;">climber_wu</h1>
+          <div class="specgrid" style="margin-top: 18px; grid-template-columns: repeat(4, 1fr);">
+            <div><span class="micro">脚宽窄</span><p class="v">窄脚</p></div>
+            <div><span class="micro">足弓</span><p class="v">高足弓</p></div>
+            <div><span class="micro">脚后跟</span><p class="v">窄脚后跟</p></div>
+            <div><span class="micro">拇外翻</span><p class="v">无</p></div>
+            <div><span class="micro">脚长</span><p class="v mono">248 mm</p></div>
+            <div><span class="micro">日常鞋码</span><p class="v mono">EU 42</p></div>
+            <div><span class="micro">脚型</span><p class="v">埃及脚</p></div>
+            <div><span class="micro">测评数</span><p class="v mono">3</p></div>
+          </div>
+          <div class="sec-title-row" style="margin-top: 34px;">
+            <h2>TA 的测评（3）</h2>
+          </div>
+          <article class="rcard">
+            <div class="rcard-top">
+              <div>
+                <span class="micro">LA SPORTIVA</span>
+                <h3 class="rcard-shoe"><a href="#">Miura 系带版</a></h3>
+              </div>
+              <div class="rcard-score"><span class="micro">综合</span><span class="n">4.5</span><span class="of">/ 5</span></div>
+            </div>
+            <p class="rcard-excerpt">鞋头包裹非常紧，小脚点踩踏精准……</p>
+            <div class="rcard-foot"><a href="#">查看完整测评 →</a><span class="date">2026-07-28</span></div>
+          </article>
+        </div>
+      </div>
+      <div class="frame">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/settings/profile</span></div>
+        <div class="page-pad">
+          <span class="micro">FOOT PROFILE</span>
+          <h1 class="page-title" style="margin-top: 6px;">脚型档案</h1>
+          <p class="page-sub" style="margin-top: 4px;">climber_wu，完善你的脚型数据，写测评时它将作为尺码与合脚度的参考基准。</p>
+          <div style="margin-top: 24px; display: grid; gap: 22px;">
+            <div class="form-grid">
+              <div class="field"><label>脚长（毫米）</label><input class="input" value="248"></div>
+              <div class="field"><label>日常鞋码（EU）</label><input class="input" value="42"></div>
+              <div class="field"><label>脚型</label><select class="input"><option>埃及脚</option></select></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>脚宽窄</label><select class="input"><option>窄</option></select></div>
+              <div class="field"><label>足弓</label><select class="input"><option>高</option></select></div>
+              <div class="field"><label>脚背</label><select class="input"><option>正常</option></select></div>
+            </div>
+            <div class="form-grid">
+              <div class="field"><label>脚后跟</label><select class="input"><option>窄</option></select></div>
+              <div class="field"><label>拇外翻</label><select class="input"><option>无</option></select></div>
+              <div class="filter-actions"><button class="btn btn-primary" style="flex:1">保存档案</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">09</span>
+      <h2>暗色模式</h2>
+      <span class="path">.dark token</span>
+    </div>
+    <p class="section-note">暗色 = 深松绿近黑（#141A16，禁纯黑），hairline 换 #2C362E，accent 提亮为 #E8621A 保证对比度。层级关系与亮色一致。</p>
+    <div class="dark-strip">
+      <div class="site-header">
+        <a class="brand" href="#">
+          <span class="mark"><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#141A16"/></svg></span>
+          <span><span class="name">攀岩鞋试穿体验平台</span><span class="sub" style="color:#77816F">TRIAL · FIT · LOG</span></span>
+        </a>
+        <nav class="site-nav">
+          <a href="#">鞋库</a><span class="sep"></span><a href="#" style="color:#ECEEE8;font-weight:700">climber_wu</a><a href="#">退出</a>
+        </nav>
+      </div>
+      <div class="inner">
+        <article class="rcard">
+          <div class="rcard-top">
+            <div>
+              <span class="micro" style="color:#77816F">LA SPORTIVA</span>
+              <h3 class="rcard-shoe"><a href="#">Miura 系带版</a></h3>
+              <p class="rcard-author">by <a href="#">climber_wu</a> · 窄脚 · 高足弓 · 窄脚后跟</p>
+            </div>
+            <div class="rcard-score"><span class="micro" style="color:#77816F">综合</span><span class="n">4.5</span><span class="of">/ 5</span></div>
+          </div>
+          <p class="rcard-excerpt">鞋头包裹非常紧，小脚点踩踏精准，系带系统可以把脚跟锁得很死。</p>
+          <div class="rcard-foot"><a href="#" style="color:#ECEEE8">查看完整测评 →</a><span class="date">2026-07-28</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">10</span>
+      <h2>移动端折叠示例</h2>
+      <span class="path">&lt; 768px 单列</span>
+    </div>
+    <p class="section-note">所有非对称布局在移动端折叠为单列：hero 数据条落到标题下方，鞋详情 spec 网格 4 列 → 2 列，合身度 3 列 → 1 列，筛选 4 列 → 2 列。</p>
+    <div class="row">
+      <div class="frame mobile">
+        <div class="frame-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>/shoes/1 · 移动端</span></div>
+        <div class="site-header">
+          <a class="brand" href="#">
+            <span class="mark"><svg width="18" height="12" viewBox="0 0 18 12" fill="none"><path d="M0 12 L6 2 L9.5 8 L12 4 L18 12 Z" fill="#F0F4EE"/></svg></span>
+            <span><span class="name">攀岩鞋试穿体验平台</span></span>
+          </a>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="#161C17" stroke-width="1.5"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+        </div>
+        <div class="page-pad">
+          <a class="backlink" href="#">← 返回鞋库</a>
+          <div class="detail-img" style="margin-top: 14px;"><span class="micro">IMG · 鞋款主图</span></div>
+          <div style="margin-top: 18px;">
+            <span class="micro">LA SPORTIVA · SPEC 规格</span>
+            <h1 class="detail-model" style="font-size: 26px;">Miura 系带版</h1>
+            <p class="detail-price mono">¥1180</p>
+            <div class="specgrid" style="margin-top: 16px; grid-template-columns: 1fr 1fr;">
+              <div><span class="micro">硬度</span><p class="v">硬</p></div>
+              <div><span class="micro">宽度楦型</span><p class="v">中</p></div>
+              <div><span class="micro">定位等级</span><p class="v">进阶</p></div>
+              <div><span class="micro">闭合方式</span><p class="v">系带</p></div>
+            </div>
+            <div style="margin-top: 16px;"><a href="#" class="btn btn-primary" style="width: 100%;">写测评</a></div>
+          </div>
+          <div style="margin-top: 30px;">
+            <h2 style="font-family: var(--display); font-size: 18px; font-weight: 700;">测评数据</h2>
+            <p class="mono" style="margin-top: 10px; font-size: 12px; color: var(--muted);">基于 12 条测评</p>
+            <div class="agg-row" style="margin-top: 14px;">
+              <section class="agg-cell">
+                <h3>维度均分</h3>
+                <div class="overall-line">
+                  <span class="micro">综合推荐指数 · OVERALL</span>
+                  <span class="num mono">4.3<span class="of"> / 5</span></span>
+                </div>
+                <svg viewBox="0 0 300 262" role="img" aria-label="六维度均分雷达图" style="width: 100%; max-width: 280px; height: auto; margin-top: 10px;">
+                  <g fill="none" stroke="#DADDD2" stroke-width="1">
+                    <polygon points="150,123 164.7,131.5 164.7,148.5 150,157 135.3,148.5 135.3,131.5"/>
+                    <polygon points="150,106 179.4,123 179.4,157 150,174 120.6,157 120.6,123"/>
+                    <polygon points="150,89 194.2,114.5 194.2,165.5 150,191 105.8,165.5 105.8,114.5"/>
+                    <polygon points="150,72 208.9,106 208.9,174 150,208 91.1,174 91.1,106"/>
+                    <polygon points="150,55 223.6,97.5 223.6,182.5 150,225 76.4,182.5 76.4,97.5"/>
+                    <path d="M150 140 L150 55 M150 140 L223.6 97.5 M150 140 L223.6 182.5 M150 140 L150 225 M150 140 L76.4 182.5 M150 140 L76.4 97.5"/>
+                  </g>
+                  <polygon points="150,63.5 197.1,112.8 214.8,177.4 150,204.6 82.3,179.1 91.1,106" fill="rgba(194,65,12,0.10)" stroke="#C2410C" stroke-width="1.5"/>
+                  <g fill="#C2410C">
+                    <circle cx="150" cy="63.5" r="2.5"/>
+                    <circle cx="197.1" cy="112.8" r="2.5"/>
+                    <circle cx="214.8" cy="177.4" r="2.5"/>
+                    <circle cx="150" cy="204.6" r="2.5"/>
+                    <circle cx="82.3" cy="179.1" r="2.5"/>
+                    <circle cx="91.1" cy="106" r="2.5"/>
+                  </g>
+                  <g font-size="11" fill="#6A7266">
+                    <text x="150" y="32" text-anchor="middle">包裹性 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.5</tspan></text>
+                    <text x="232" y="95" text-anchor="start">舒适 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">3.2</tspan></text>
+                    <text x="232" y="188" text-anchor="start">精准度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.4</tspan></text>
+                    <text x="150" y="250" text-anchor="middle">灵敏度 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">3.8</tspan></text>
+                    <text x="68" y="188" text-anchor="end">摩擦 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.6</tspan></text>
+                    <text x="68" y="95" text-anchor="end">支撑 <tspan font-family="IBM Plex Mono, monospace" font-weight="600" fill="#161C17">4.0</tspan></text>
+                  </g>
+                </svg>
+              </section>
+              <section class="agg-cell">
+                <h3>尺码偏移</h3>
+                <p class="size-headline"><b class="mono" style="color: var(--accent);">67%</b> 用户选择比日常小 1 码</p>
+                <ul class="size-bars">
+                  <li class="bar-row"><span class="lbl">比日常小 1 码</span><span class="bar-track"><span class="bar-fill" style="width: 67%"></span></span><span class="sub">67% · 8 条</span></li>
+                  <li class="bar-row"><span class="lbl">比日常小半码</span><span class="bar-track"><span class="bar-fill" style="width: 25%"></span></span><span class="sub">25% · 3 条</span></li>
+                  <li class="bar-row"><span class="lbl">比日常小 1 码半</span><span class="bar-track"><span class="bar-fill" style="width: 8%"></span></span><span class="sub">8% · 1 条</span></li>
+                </ul>
+              </section>
+              <section class="agg-cell">
+                <h3>合身度反馈</h3>
+                <div class="fit-rows">
+                  <section class="fit-row"><h4>脚跟</h4><ul><li class="top">贴合 58%</li><li>略松 25%</li><li>脚跟空 8%</li><li>磨脚跟 8%</li></ul></section>
+                  <section class="fit-row"><h4>脚趾</h4><ul><li class="top">自然微蜷 50%</li><li>挤压 33%</li><li>自然 17%</li></ul></section>
+                  <section class="fit-row"><h4>脚背</h4><ul><li class="top">合适 75%</li><li>压迫 25%</li></ul></section>
+                  <section class="fit-row"><h4>前掌</h4><ul><li class="top">挤压 50%</li><li>舒适 42%</li><li>疼痛 8%</li></ul></section>
+                  <section class="fit-row"><h4>足弓</h4><ul><li class="top">正常 92%</li><li>疼痛 8%</li></ul></section>
+                  <section class="fit-row"><h4>透气</h4><ul><li class="top">一般 58%</li><li>透气 33%</li><li>闷热 8%</li></ul></section>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <span class="no">11</span>
+      <h2>落地说明 · 实现约束</h2>
+    </div>
+    <div class="legend" style="flex-direction: column; align-items: flex-start; gap: 8px; font-size: 13px;">
+      <p><b>不动：</b>路由、数据获取、server actions、zod / DB schema；E2E 依赖的按钮文字、表单标签、role="alert"、空态文案。</p>
+      <p><b>改动层：</b>globals.css token（oklch 山系色板 + 2px radius）、layout.tsx 字体（Space Grotesk / IBM Plex Mono / Noto Sans SC，next/font 自托管）、site-header、review-card、各页面视觉层。</p>
+      <p><b>新增依赖：</b>@phosphor-icons/react（统一 strokeWidth 1.5，替换设计稿中的占位 SVG）。</p>
+      <p><b>需真图清单：</b>① 鞋库卡片主图（4:3，每款鞋 1 张）② 鞋详情页主图（4:3，可多张）③ 首页若无数据时的空态插图（可选，线性山形风格）。当前以标注占位槽呈现。</p>
+      <p><b>E2E 适配：</b>测评卡片不再展示 rating 条与尺码偏移（综合分数字保留）；维度均分雷达图配 sr-only 七维列表（li，含综合推荐指数）；合身度反馈保留 section / h4 / li 语义（每部位一个 section，选项为 li），确保 aggregates.spec 的定位器不变。</p>
+      <p><b>验收：</b>bun run typecheck · bun run lint · bun run test:e2e 全绿；WCAG AA 对比度（accent #C2410C 对白 4.8:1）。</p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

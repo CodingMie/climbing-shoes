@@ -1,7 +1,7 @@
 import Link from "next/link";
-
-export const filterFieldClass =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/40";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 
 export function FilterActions({
   clearHref,
@@ -12,19 +12,13 @@ export function FilterActions({
 }) {
   return (
     <div className="flex items-end gap-2">
-      <button
-        type="submit"
-        className="h-9 flex-1 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-      >
+      <Button type="submit" className="flex-1">
         筛选
-      </button>
+      </Button>
       {showClear ? (
-        <Link
-          href={clearHref}
-          className="flex h-9 items-center rounded-md border border-input px-3 text-sm hover:bg-muted"
-        >
-          清空
-        </Link>
+        <Button asChild variant="outline">
+          <Link href={clearHref}>清空</Link>
+        </Button>
       ) : null}
     </div>
   );
@@ -44,20 +38,16 @@ export function FilterSelect({
   options: { value: string | number; label: string }[];
 }) {
   return (
-    <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <select
-        name={name}
-        defaultValue={value ?? ""}
-        className={filterFieldClass}
-      >
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={name}>{label}</Label>
+      <Select id={name} name={name} defaultValue={value ?? ""}>
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
-    </label>
+      </Select>
+    </div>
   );
 }

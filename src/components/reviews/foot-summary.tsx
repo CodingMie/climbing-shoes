@@ -64,7 +64,7 @@ export type FootStatsData = {
 export function FootStatsLine({ profile }: { profile: FootStatsData }) {
   if (!profile.footLength) return null;
   return (
-    <p className="text-xs text-muted-foreground">
+    <p className="font-mono text-xs text-muted-foreground">
       脚长 {profile.footLength} 毫米 · 日常鞋码 EU {profile.streetSize}
       {profile.footShape ? ` · 脚型 ${profile.footShape}` : ""}
     </p>

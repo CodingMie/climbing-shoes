@@ -3,8 +3,8 @@ import Link from "next/link";
 import {
   FilterActions,
   FilterSelect,
-  filterFieldClass,
 } from "@/components/shoes/filter-select";
+import { Input } from "@/components/ui/input";
 import {
   FOOT_SHAPES,
   FOOT_WIDTHS,
@@ -66,7 +66,7 @@ export default async function ShoesPage({
 
       <form
         method="get"
-        className="mt-6 grid gap-4 rounded-xl border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="mt-6 grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <FilterSelect
           name="brand"
@@ -106,25 +106,25 @@ export default async function ShoesPage({
           placeholder="全部定位"
           options={SHOE_LEVELS.map((item) => ({ value: item, label: item }))}
         />
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="text-muted-foreground">价格区间（元）</span>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-label font-medium text-ink-soft">
+            价格区间（元）
+          </span>
           <span className="flex items-center gap-2">
-            <input
+            <Input
               type="number"
               name="priceMin"
               min={0}
               placeholder="最低"
               defaultValue={filters.priceMin ?? ""}
-              className={filterFieldClass}
             />
             <span className="text-muted-foreground">–</span>
-            <input
+            <Input
               type="number"
               name="priceMax"
               min={0}
               placeholder="最高"
               defaultValue={filters.priceMax ?? ""}
-              className={filterFieldClass}
             />
           </span>
         </label>
@@ -164,7 +164,7 @@ export default async function ShoesPage({
       </p>
 
       {shoes.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        <div className="mt-4 rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
           没有找到匹配的鞋款，试试调整筛选条件
         </div>
       ) : (
@@ -173,7 +173,7 @@ export default async function ShoesPage({
             <li key={item.id}>
               <Link
                 href={shoeHref(item.id, filters)}
-                className="block overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
+                className="block overflow-hidden rounded-lg border bg-card transition-colors hover:border-input"
               >
                 {item.images[0] ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -192,9 +192,9 @@ export default async function ShoesPage({
                     {item.brandName}
                   </p>
                   <h2 className="font-semibold">{item.model}</h2>
-                  <p className="text-sm">¥{item.price}</p>
+                  <p className="font-mono text-sm">¥{item.price}</p>
                   {item.matchAvgRating !== null ? (
-                    <p className="text-xs font-medium text-primary">
+                    <p className="font-mono text-xs font-medium text-primary">
                       匹配脚型均分 {item.matchAvgRating.toFixed(1)} ·{" "}
                       {item.matchReviewerCount} 人评过
                     </p>

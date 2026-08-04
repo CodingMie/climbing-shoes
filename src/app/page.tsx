@@ -45,7 +45,7 @@ export default async function Home() {
         </div>
 
         {latestReviews.length === 0 ? (
-          <p className="mt-4 rounded-xl border bg-card p-6 text-sm text-muted-foreground">
+          <p className="mt-4 rounded-lg border bg-card p-6 text-sm text-muted-foreground">
             还没有测评。注册后试穿一双鞋，来写下第一条测评吧。
           </p>
         ) : (
