@@ -2,11 +2,13 @@ import Link from "next/link";
 import { ReviewCard } from "@/components/reviews/review-card";
 import { Button } from "@/components/ui/button";
 import { listLatestReviews } from "@/lib/reviews";
+import { getSession } from "@/lib/session";
 
 const LATEST_LIMIT = 8;
 
-export default function Home() {
+export default async function Home() {
   const latestReviews = listLatestReviews(LATEST_LIMIT);
+  const session = await getSession();
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-12">
@@ -21,9 +23,11 @@ export default function Home() {
           <Button asChild>
             <Link href="/shoes">浏览鞋库</Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/register">注册并记录你的脚型</Link>
-          </Button>
+          {session ? null : (
+            <Button asChild variant="outline">
+              <Link href="/register">注册并记录你的脚型</Link>
+            </Button>
+          )}
         </div>
       </section>
 

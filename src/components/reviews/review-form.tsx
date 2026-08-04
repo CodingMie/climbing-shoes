@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   submitReviewAction,
   updateReviewAction,
@@ -63,6 +63,43 @@ function EnumSelect({
           </option>
         ))}
       </Select>
+    </div>
+  );
+}
+
+function RatingInput({
+  name,
+  label,
+  defaultValue,
+}: {
+  name: string;
+  label: string;
+  defaultValue: number | undefined;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex flex-row-reverse justify-end gap-1 text-xl leading-none">
+        {[5, 4, 3, 2, 1].map((value) => (
+          <Fragment key={value}>
+            <input
+              type="radio"
+              id={`${name}-${value}`}
+              name={name}
+              value={value}
+              defaultChecked={defaultValue === value}
+              className="peer sr-only"
+            />
+            <label
+              htmlFor={`${name}-${value}`}
+              aria-label={`${value} 分`}
+              className="cursor-pointer text-muted-foreground/30 transition-colors peer-checked:text-amber-400 peer-hover:text-amber-400 peer-focus-visible:ring-3 peer-focus-visible:ring-ring/50"
+            >
+              ★
+            </label>
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 }
@@ -161,13 +198,11 @@ export function ReviewForm({
       <Section title="维度评分" hint="每项 1–5 分，5 分最好">
         <div className="grid gap-4 sm:grid-cols-2">
           {RATING_DIMENSIONS.map((dimension) => (
-            <EnumSelect
+            <RatingInput
               key={dimension}
-              id={dimension}
+              name={dimension}
               label={RATING_LABELS[dimension]}
-              options={[1, 2, 3, 4, 5]}
               defaultValue={review?.[dimension]}
-              renderOption={(value) => `${value} 分`}
             />
           ))}
         </div>
