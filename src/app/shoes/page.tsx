@@ -58,15 +58,23 @@ export default async function ShoesPage({
     hasFootFilters;
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-6 py-10">
-      <h1 className="text-2xl font-bold">鞋库</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        按鞋款属性或测评者脚型筛选
-      </p>
+    <main className="mx-auto w-full max-w-5xl px-4 pb-8 pt-[22px] md:px-7 md:pb-11 md:pt-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <div>
+          <h1 className="text-[26px] font-black tracking-[-0.01em]">鞋库</h1>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            按鞋款属性或测评者脚型筛选
+          </p>
+        </div>
+        <p className="font-mono text-xs text-muted-foreground">
+          共 {shoes.length} 款
+          {hasFootFilters ? " · 按匹配脚型测评者的平均分排序" : ""}
+        </p>
+      </div>
 
       <form
         method="get"
-        className="mt-6 grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="mt-[18px] grid grid-cols-2 gap-3.5 rounded-lg border border-border bg-card p-[18px] lg:grid-cols-4"
       >
         <FilterSelect
           name="brand"
@@ -106,7 +114,7 @@ export default async function ShoesPage({
           placeholder="全部定位"
           options={SHOE_LEVELS.map((item) => ({ value: item, label: item }))}
         />
-        <label className="flex flex-col gap-1.5">
+        <label className="col-span-2 flex flex-col gap-1.5">
           <span className="text-label font-medium text-ink-soft">
             价格区间（元）
           </span>
@@ -128,9 +136,10 @@ export default async function ShoesPage({
             />
           </span>
         </label>
-        <p className="border-t pt-4 text-sm font-medium sm:col-span-2 lg:col-span-4">
+        <FilterActions clearHref="/shoes" showClear={hasActiveFilters} />
+        <p className="col-span-full mt-1 border-t border-border pt-3.5 text-[13px] font-bold">
           按脚型筛选
-          <span className="ml-2 font-normal text-muted-foreground">
+          <span className="ml-2 text-xs font-normal text-muted-foreground">
             找出符合脚型的测评者评过的鞋，按他们的平均分排序
           </span>
         </p>
@@ -155,51 +164,47 @@ export default async function ShoesPage({
           placeholder="全部脚后跟"
           options={HEEL_WIDTHS.map((item) => ({ value: item, label: item }))}
         />
-        <FilterActions clearHref="/shoes" showClear={hasActiveFilters} />
       </form>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        共 {shoes.length} 款
-        {hasFootFilters ? " · 按匹配脚型测评者的平均分排序" : ""}
-      </p>
-
       {shoes.length === 0 ? (
-        <div className="mt-4 rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+        <div className="mt-[22px] rounded-lg border border-dashed border-hairline-strong bg-card px-5 py-9 text-center text-[13px] text-muted-foreground">
           没有找到匹配的鞋款，试试调整筛选条件
+          <p className="mt-2.5 text-label text-ink-soft">
+            <Link
+              href="/shoes"
+              className="underline underline-offset-3 transition-colors hover:text-trail"
+            >
+              清空全部筛选
+            </Link>
+          </p>
         </div>
       ) : (
-        <ul className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-[22px] grid gap-3.5 lg:grid-cols-3">
           {shoes.map((item) => (
             <li key={item.id}>
               <Link
                 href={shoeHref(item.id, filters)}
-                className="block overflow-hidden rounded-lg border bg-card transition-colors hover:border-input"
+                className="block h-full overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-hairline-strong"
               >
-                {item.images[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.images[0]}
-                    alt={`${item.brandName} ${item.model}`}
-                    className="aspect-[4/3] w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex aspect-[4/3] w-full items-center justify-center bg-muted text-sm text-muted-foreground">
-                    暂无图片
-                  </div>
-                )}
-                <div className="space-y-1.5 p-4">
-                  <p className="text-xs text-muted-foreground">
-                    {item.brandName}
+                <div className="flex aspect-[4/3] flex-col items-center justify-center gap-1 border-b border-border bg-surface-2">
+                  <span className="micro-label">IMG · 主图 800×600</span>
+                  <span className="micro-label text-[9px]">待真图</span>
+                </div>
+                <div className="px-4 pb-4 pt-3.5">
+                  <p className="micro-label">{item.brandName}</p>
+                  <h2 className="mt-[3px] text-[15.5px] font-bold">
+                    {item.model}
+                  </h2>
+                  <p className="mt-1.5 font-mono text-sm font-semibold">
+                    ¥{item.price}
                   </p>
-                  <h2 className="font-semibold">{item.model}</h2>
-                  <p className="font-mono text-sm">¥{item.price}</p>
                   {item.matchAvgRating !== null ? (
-                    <p className="font-mono text-xs font-medium text-primary">
+                    <p className="mt-1.5 font-mono text-[11.5px] font-semibold text-primary">
                       匹配脚型均分 {item.matchAvgRating.toFixed(1)} ·{" "}
                       {item.matchReviewerCount} 人评过
                     </p>
                   ) : null}
-                  <p className="text-xs text-muted-foreground">
+                  <p className="mt-2 border-t border-border pt-2 text-[11px] text-muted-foreground">
                     {[
                       ...item.scenarios,
                       item.stiffness,
