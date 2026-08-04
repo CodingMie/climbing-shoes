@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  FilterActions,
+  FilterSelect,
+  filterFieldClass,
+} from "@/components/shoes/filter-select";
+import {
   FOOT_SHAPES,
   FOOT_WIDTHS,
   HEEL_WIDTHS,
@@ -9,45 +14,24 @@ import {
   SHOE_STIFFNESS,
   SHOE_WIDTHS,
 } from "@/db/schema";
-import { listBrands, listShoes, parseShoeFilters } from "@/lib/shoes";
+import {
+  listBrands,
+  listShoes,
+  parseShoeFilters,
+  type ShoeFilters,
+} from "@/lib/shoes";
 
 export const metadata: Metadata = {
   title: "鞋库",
 };
 
-const fieldClass =
-  "h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/40";
-
-function FilterSelect({
-  name,
-  label,
-  value,
-  placeholder,
-  options,
-}: {
-  name: string;
-  label: string;
-  value?: string | number;
-  placeholder: string;
-  options: { value: string | number; label: string }[];
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <select
-        name={name}
-        defaultValue={value ?? ""}
-        className={fieldClass}
-      >
-        <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
+function shoeHref(id: number, filters: ShoeFilters): string {
+  const params = new URLSearchParams();
+  if (filters.footShape) params.set("footShape", filters.footShape);
+  if (filters.footWidth) params.set("footWidth", filters.footWidth);
+  if (filters.footHeel) params.set("footHeel", filters.footHeel);
+  const query = params.toString();
+  return query ? `/shoes/${id}?${query}` : `/shoes/${id}`;
 }
 
 export default async function ShoesPage({
@@ -132,7 +116,7 @@ export default async function ShoesPage({
               min={0}
               placeholder="最低"
               defaultValue={filters.priceMin ?? ""}
-              className={fieldClass}
+              className={filterFieldClass}
             />
             <span className="text-muted-foreground">–</span>
             <input
@@ -141,7 +125,7 @@ export default async function ShoesPage({
               min={0}
               placeholder="最高"
               defaultValue={filters.priceMax ?? ""}
-              className={fieldClass}
+              className={filterFieldClass}
             />
           </span>
         </label>
@@ -160,16 +144,16 @@ export default async function ShoesPage({
         />
         <FilterSelect
           name="footWidth"
-          label="脚宽"
+          label="脚宽窄"
           value={filters.footWidth}
-          placeholder="全部脚宽"
+          placeholder="全部脚宽窄"
           options={FOOT_WIDTHS.map((item) => ({ value: item, label: item }))}
         />
         <FilterSelect
           name="footHeel"
-          label="脚跟宽窄"
+          label="脚后跟"
           value={filters.footHeel}
-          placeholder="全部脚跟"
+          placeholder="全部脚后跟"
           options={HEEL_WIDTHS.map((item) => ({ value: item, label: item }))}
         />
         <label className="flex flex-col gap-1.5 text-sm sm:col-span-2 lg:col-span-3">
@@ -179,25 +163,10 @@ export default async function ShoesPage({
             name="q"
             placeholder="搜索品牌 / 型号 / 变体"
             defaultValue={filters.q ?? ""}
-            className={fieldClass}
+            className={filterFieldClass}
           />
         </label>
-        <div className="flex items-end gap-2">
-          <button
-            type="submit"
-            className="h-9 flex-1 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/80"
-          >
-            筛选
-          </button>
-          {hasActiveFilters ? (
-            <Link
-              href="/shoes"
-              className="flex h-9 items-center rounded-md border border-input px-3 text-sm hover:bg-muted"
-            >
-              清空
-            </Link>
-          ) : null}
-        </div>
+        <FilterActions clearHref="/shoes" showClear={hasActiveFilters} />
       </form>
 
       <p className="mt-6 text-sm text-muted-foreground">
@@ -214,7 +183,7 @@ export default async function ShoesPage({
           {shoes.map((item) => (
             <li key={item.id}>
               <Link
-                href={`/shoes/${item.id}`}
+                href={shoeHref(item.id, filters)}
                 className="block overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
               >
                 {item.images[0] ? (
