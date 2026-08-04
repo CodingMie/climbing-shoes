@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 const CENTER_X = 150;
 const CENTER_Y = 140;
 const RADIUS = 85;
@@ -20,8 +22,14 @@ function point(axis: number, radius: number): string {
 
 export function RadarChart({
   dimensions,
+  ariaLabel = "六维度均分雷达图",
+  formatValue = (value) => value.toFixed(1),
+  className,
 }: {
   dimensions: { label: string; avg: number }[];
+  ariaLabel?: string;
+  formatValue?: (value: number) => string;
+  className?: string;
 }) {
   const rings = [1, 2, 3, 4, 5].map((step) =>
     dimensions
@@ -39,8 +47,8 @@ export function RadarChart({
     <svg
       viewBox="0 0 300 262"
       role="img"
-      aria-label="六维度均分雷达图"
-      className="mt-2.5 h-auto w-full max-w-[264px]"
+      aria-label={ariaLabel}
+      className={cn("mt-2.5 h-auto w-full max-w-[264px]", className)}
     >
       <g fill="none" stroke="var(--hairline)" strokeWidth="1">
         {rings.map((ring) => (
@@ -77,7 +85,7 @@ export function RadarChart({
           >
             {dimension.label}{" "}
             <tspan className="font-mono" fontWeight="600" fill="var(--ink)">
-              {dimension.avg.toFixed(1)}
+              {formatValue(dimension.avg)}
             </tspan>
           </text>
         ))}
