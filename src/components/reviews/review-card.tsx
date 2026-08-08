@@ -11,11 +11,14 @@ export type ReviewCardData = {
   brandName?: string;
   authorName?: string;
   authorUsername?: string | null;
+  footLength?: number | null;
   footWidth?: string | null;
+  footShape?: string | null;
   arch?: string | null;
   instep?: string | null;
   heel?: string | null;
   bunion?: string | null;
+  streetSize?: number | null;
 };
 
 const EXCERPT_LENGTH = 100;
@@ -30,6 +33,14 @@ function formatCardDate(date: Date): string {
   }).format(date);
 }
 
+function footStatsText(review: ReviewCardData): string | null {
+  const parts: string[] = [];
+  if (review.footLength) parts.push(`脚长 ${review.footLength}mm`);
+  if (review.streetSize) parts.push(`日常 EU ${review.streetSize}`);
+  if (review.footShape) parts.push(`脚型 ${review.footShape}`);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export function ReviewCard({
   review,
   showShoe = true,
@@ -41,6 +52,7 @@ export function ReviewCard({
 }) {
   const authorDisplay = review.authorUsername ?? review.authorName;
   const footLabels = footSummaryLabels(review);
+  const statsText = footStatsText(review);
   const showShoeBlock = Boolean(showShoe && review.shoeId && review.shoeModel);
 
   return (
@@ -90,6 +102,17 @@ export function ReviewCard({
               {footLabels.length > 0
                 ? `${authorDisplay ? " · " : ""}${footLabels.join(" · ")}`
                 : null}
+            </p>
+          ) : null}
+          {statsText ? (
+            <p
+              className={
+                showShoeBlock || showAuthor
+                  ? "mt-0.5 font-mono text-[11px] text-muted-foreground"
+                  : "font-mono text-[11px] text-muted-foreground"
+              }
+            >
+              {statsText}
             </p>
           ) : null}
         </div>

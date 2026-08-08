@@ -117,11 +117,17 @@ export function listShoes(filters: ShoeFilters = {}) {
   }
 
   if (footConditions.length === 0) {
+    const totalReviewCount = count(review.id);
     return getDb()
-      .select(shoeListColumns)
+      .select({
+        ...shoeListColumns,
+        totalReviewCount,
+      })
       .from(shoe)
       .innerJoin(brand, eq(shoe.brandId, brand.id))
+      .leftJoin(review, eq(review.shoeId, shoe.id))
       .where(and(...conditions))
+      .groupBy(shoe.id)
       .orderBy(asc(brand.name), asc(shoe.model))
       .all()
       .map((row) => ({
@@ -138,6 +144,7 @@ export function listShoes(filters: ShoeFilters = {}) {
       ...shoeListColumns,
       matchAvgRating: matchRating,
       matchReviewerCount: matchCount,
+      totalReviewCount: matchCount,
     })
     .from(shoe)
     .innerJoin(brand, eq(shoe.brandId, brand.id))

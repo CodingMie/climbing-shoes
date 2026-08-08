@@ -48,6 +48,15 @@ export function getReviewByUserAndShoe(userId: string, shoeId: number) {
   );
 }
 
+export function hasUserReviewedShoe(userId: string, shoeId: number): boolean {
+  const row = getDb()
+    .select({ id: review.id })
+    .from(review)
+    .where(and(eq(review.userId, userId), eq(review.shoeId, shoeId)))
+    .get();
+  return !!row;
+}
+
 export function listShoeReviews(shoeId: number) {
   return getDb()
     .select({
@@ -113,10 +122,12 @@ export function listUserReviews(userId: string) {
     .select({
       ...reviewCardColumns,
       ...shoeColumns,
+      ...footSummaryColumns,
     })
     .from(review)
     .innerJoin(shoe, eq(review.shoeId, shoe.id))
     .innerJoin(brand, eq(shoe.brandId, brand.id))
+    .leftJoin(footProfile, eq(review.userId, footProfile.userId))
     .where(and(eq(review.userId, userId), eq(shoe.status, "approved")))
     .orderBy(desc(review.createdAt))
     .all();

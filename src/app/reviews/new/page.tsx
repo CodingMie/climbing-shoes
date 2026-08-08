@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ReviewForm } from "@/components/reviews/review-form";
 import { Button } from "@/components/ui/button";
 import { getFootProfile } from "@/lib/foot-profile";
 import { parsePositiveInt } from "@/lib/params";
-import { getReviewByUserAndShoe } from "@/lib/reviews";
 import { requireUser } from "@/lib/session";
 import { formatShoeTitle, getShoe } from "@/lib/shoes";
 
@@ -24,9 +23,6 @@ export default async function NewReviewPage({
   if (!shoeId) notFound();
   const shoeDetail = getShoe(shoeId);
   if (!shoeDetail) notFound();
-
-  const existing = getReviewByUserAndShoe(session.user.id, shoeId);
-  if (existing) redirect(`/reviews/${existing.id}/edit`);
 
   const shoeTitle = formatShoeTitle(shoeDetail);
 

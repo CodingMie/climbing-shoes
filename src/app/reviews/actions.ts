@@ -5,7 +5,6 @@ import { getFootProfile } from "@/lib/foot-profile";
 import {
   createReview,
   deleteReview,
-  getReviewByUserAndShoe,
   getReviewDetail,
   updateReview,
 } from "@/lib/reviews";
@@ -35,24 +34,13 @@ export async function submitReviewAction(
   if (!getFootProfile(session.user.id)) {
     return { ok: false, error: "请先完善脚型档案，再提交测评" };
   }
-  if (getReviewByUserAndShoe(session.user.id, shoeId)) {
-    return { ok: false, error: "你已对这双鞋写过测评，可直接编辑已有测评" };
-  }
 
   const parsed = reviewSchema.safeParse(reviewRawValues(formData));
   if (!parsed.success) {
     return { ok: false, error: firstIssueMessage(parsed.error) };
   }
 
-  let reviewId: number;
-  try {
-    reviewId = createReview(session.user.id, shoeId, parsed.data);
-  } catch (error) {
-    if (error instanceof Error && error.message.includes("UNIQUE constraint")) {
-      return { ok: false, error: "你已对这双鞋写过测评，可直接编辑已有测评" };
-    }
-    throw error;
-  }
+  const reviewId = createReview(session.user.id, shoeId, parsed.data);
   redirect(`/reviews/${reviewId}`);
 }
 

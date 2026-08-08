@@ -23,3 +23,4 @@
 - 手动验证（curl）：18 款全量；brand=La Sportiva 6 款；场景抱石 8 款；硬度硬 2 款；价格 1000-1200 7 款；q=miura 1 款（大小写不敏感）；q=VS 命中变体；组合 brand+硬度 4 款；详情页参数齐全、不存在/非法 id 返回 404。
 - 现有 E2E 11 条全部通过（无回归）。本 ticket 的 E2E 覆盖按约定推迟到 UI 重构后。
 - src/db/index.ts 相对导入补 .ts 后缀（Node 类型剥离要求），node 脚本可直接 import getDb。
+- 2026-08-04 扩充种子数据：新增 Five Ten、Ocún、Red Chili、So Ill、AKU 5 个品牌及 44 款鞋款（共 13 品牌、62 鞋款），属性按真实鞋款定位填写。seed 脚本由「清空重插」改为「按品牌名/鞋款名去重的增量插入」——开发库已有测评（review.shoe_id 级联删除），清空会误删；重跑只补缺失项，README 同步更新。

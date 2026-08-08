@@ -187,8 +187,25 @@ export default async function ShoesPage({
                 className="block h-full overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-hairline-strong"
               >
                 <div className="flex aspect-[4/3] flex-col items-center justify-center gap-1 border-b border-border bg-surface-2">
-                  <span className="micro-label">IMG · 主图 800×600</span>
-                  <span className="micro-label text-[9px]">待真图</span>
+                  {(() => {
+                    const primaryImage = item.images[0];
+                    if (primaryImage) {
+                      return (
+                        <img
+                          src={primaryImage}
+                          alt={`${item.brandName} ${item.model}`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      );
+                    }
+                    return (
+                      <>
+                        <span className="micro-label">IMG · 主图 800×600</span>
+                        <span className="micro-label text-[9px]">待真图</span>
+                      </>
+                    );
+                  })()}
                 </div>
                 <div className="px-4 pb-4 pt-3.5">
                   <p className="micro-label">{item.brandName}</p>
@@ -202,6 +219,10 @@ export default async function ShoesPage({
                     <p className="mt-1.5 font-mono text-[11.5px] font-semibold text-primary">
                       匹配脚型均分 {item.matchAvgRating.toFixed(1)} ·{" "}
                       {item.matchReviewerCount} 人评过
+                    </p>
+                  ) : item.totalReviewCount > 0 ? (
+                    <p className="mt-1.5 font-mono text-[11.5px] text-muted-foreground">
+                      {item.totalReviewCount} 人评过
                     </p>
                   ) : null}
                   <p className="mt-2 border-t border-border pt-2 text-[11px] text-muted-foreground">

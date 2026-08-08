@@ -29,7 +29,10 @@ export const HEEL_WIDTHS = ["窄", "中", "宽"] as const;
 export const BUNION_LEVELS = ["无", "轻度", "中度", "重度"] as const;
 
 export const SIZE_SYSTEMS = ["EU", "US", "UK", "CM"] as const;
-export const SIZE_DELTAS = [-2, -1.5, -1, -0.5, 0, 0.5, 1] as const;
+export const SIZE_DELTAS = [
+  -5, -4.5, -4, -3.5, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5,
+  3, 3.5, 4, 4.5, 5,
+] as const;
 export const HEEL_FITS = ["贴合", "略松", "脚跟空", "磨脚跟"] as const;
 export const TOE_FITS = ["自然", "自然微蜷", "挤压", "抽筋"] as const;
 export const INSTEP_FITS = ["合适", "压迫"] as const;
@@ -184,7 +187,11 @@ export const review = sqliteTable(
       .default(sql`(unixepoch())`),
   },
   (table) => [
-    uniqueIndex("review_user_shoe_unique").on(table.userId, table.shoeId),
+    uniqueIndex("review_user_shoe_size_unique").on(
+      table.userId,
+      table.shoeId,
+      table.sizeDelta,
+    ),
   ],
 );
 

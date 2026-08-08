@@ -24,6 +24,7 @@
 - UI 组件：shadcn 原语在 `src/components/ui/`，业务组件在 `src/components/<feature>/`；表单参照 `register-form.tsx` 的模式（zod 前端校验 + 单条 `role="alert"` 中文错误）。
 - 表名单数、列 snake_case、drizzle 属性 camelCase；迁移输出到 `drizzle/` 并随代码提交，`bun run db:generate` 生成、`bun run db:migrate` 应用。
 - E2E 在 `e2e/<feature>.spec.ts`（断言外部可见行为）；需求与实现备注在 `.scratch/climbing-shoe-platform/issues/`（已完成 ticket 的 Comments 含落地细节）。
+- 鞋款图片：本地采集图存 `public/shoe-images/`，DB `shoe.images` 存 `/shoe-images/<file>.jpg` 或外部 URL；给鞋补真实产品图用 skill `fetch-shoe-images`（见 `.agents/skills/fetch-shoe-images/SKILL.md`）。
 - 领域术语以根目录 `CONTEXT.md` 为准（如「宽度楦型」是鞋、「脚宽窄」是脚，勿混用）。
 
 典型任务路径：

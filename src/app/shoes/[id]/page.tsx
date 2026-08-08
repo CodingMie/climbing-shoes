@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { FOOT_SHAPES, FOOT_WIDTHS, HEEL_WIDTHS } from "@/db/schema";
 import { formatSizeDelta } from "@/lib/reviews-schema";
 import {
-  getReviewByUserAndShoe,
+  hasUserReviewedShoe,
   getShoeReviewStats,
   listShoeReviews,
 } from "@/lib/reviews";
@@ -51,9 +51,9 @@ export default async function ShoeDetailPage({
 
   const session = await getSession();
   const reviews = listShoeReviews(shoe.id);
-  const myReview = session
-    ? getReviewByUserAndShoe(session.user.id, shoe.id)
-    : null;
+  const userHasReview = session
+    ? hasUserReviewedShoe(session.user.id, shoe.id)
+    : false;
 
   const filters = parseShoeFilters(await searchParams);
   const footFilters = {
@@ -106,9 +106,25 @@ export default async function ShoeDetailPage({
       </Link>
 
       <div className="mt-[18px] grid gap-8 lg:grid-cols-[5fr_6fr]">
-        <div className="flex aspect-[4/3] flex-col items-center justify-center gap-1 rounded-lg border border-border bg-surface-2">
-          <span className="micro-label">IMG · 鞋款主图 800×600</span>
-          <span className="micro-label text-[9px]">占位槽 · 交付时换真图</span>
+        <div className="flex aspect-[4/3] flex-col items-center justify-center gap-1 overflow-hidden rounded-lg border border-border bg-surface-2">
+          {(() => {
+            const primaryImage = shoe.images[0];
+            if (primaryImage) {
+              return (
+                <img
+                  src={primaryImage}
+                  alt={`${shoe.brandName} ${shoe.model}`}
+                  className="h-full w-full object-cover"
+                />
+              );
+            }
+            return (
+              <>
+                <span className="micro-label">IMG · 鞋款主图 800×600</span>
+                <span className="micro-label text-[9px]">占位槽 · 交付时换真图</span>
+              </>
+            );
+          })()}
         </div>
 
         <div>
@@ -143,15 +159,11 @@ export default async function ShoeDetailPage({
           </dl>
 
           <div className="mt-[18px] flex gap-2.5">
-            {myReview ? (
-              <Button asChild variant="outline">
-                <Link href={`/reviews/${myReview.id}/edit`}>编辑我的测评</Link>
-              </Button>
-            ) : (
-              <Button asChild>
-                <Link href={`/reviews/new?shoe=${shoe.id}`}>写测评</Link>
-              </Button>
-            )}
+            <Button asChild>
+              <Link href={`/reviews/new?shoe=${shoe.id}`}>
+                {userHasReview ? "写另一条测评" : "写测评"}
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

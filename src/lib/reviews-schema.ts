@@ -25,6 +25,12 @@ export const RATING_LABELS: Record<RatingDimension, string> = {
 };
 
 export const SIZE_DELTA_LABELS: Record<SizeDelta, string> = {
+  "-5": "比日常小 5 码以上",
+  "-4.5": "比日常小 4.5 码",
+  "-4": "比日常小 4 码",
+  "-3.5": "比日常小 3.5 码",
+  "-3": "比日常小 3 码",
+  "-2.5": "比日常小 2.5 码",
   "-2": "比日常小 2 码",
   "-1.5": "比日常小 1 码半",
   "-1": "比日常小 1 码",
@@ -32,6 +38,14 @@ export const SIZE_DELTA_LABELS: Record<SizeDelta, string> = {
   "0": "与日常码相同",
   "0.5": "比日常大半码",
   "1": "比日常大 1 码",
+  "1.5": "比日常大 1 码半",
+  "2": "比日常大 2 码",
+  "2.5": "比日常大 2.5 码",
+  "3": "比日常大 3 码",
+  "3.5": "比日常大 3.5 码",
+  "4": "比日常大 4 码",
+  "4.5": "比日常大 4.5 码",
+  "5": "比日常大 5 码以上",
 };
 
 export function formatSizeDelta(delta: number): string {
@@ -74,8 +88,8 @@ export const reviewSchema = z.object({
     .pipe(
       z
         .number()
-        .min(Math.min(...SIZE_DELTAS), "尺码偏移须约在 -2 ～ +1 之间")
-        .max(Math.max(...SIZE_DELTAS), "尺码偏移须约在 -2 ～ +1 之间"),
+        .min(Math.min(...SIZE_DELTAS), "尺码偏移须在 -5 ～ +5 之间")
+        .max(Math.max(...SIZE_DELTAS), "尺码偏移须在 -5 ～ +5 之间"),
     ),
   wrap: ratingField("包裹性"),
   comfort: ratingField("舒适"),
