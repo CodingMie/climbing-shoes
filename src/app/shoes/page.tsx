@@ -48,6 +48,7 @@ export default async function ShoesPage({
     filters.footWidth !== undefined ||
     filters.footHeel !== undefined;
   const hasActiveFilters =
+    filters.query !== undefined ||
     filters.brandId !== undefined ||
     filters.scenario !== undefined ||
     filters.stiffness !== undefined ||
@@ -76,6 +77,17 @@ export default async function ShoesPage({
         method="get"
         className="mt-[18px] grid grid-cols-2 gap-3.5 rounded-lg border border-border bg-card p-[18px] lg:grid-cols-4"
       >
+        <label className="col-span-full flex flex-col gap-1.5">
+          <span className="text-label font-medium text-ink-soft">
+            搜索品牌或型号
+          </span>
+          <Input
+            type="search"
+            name="q"
+            placeholder="如：Scarpa、Vapor、Solution……"
+            defaultValue={filters.query ?? ""}
+          />
+        </label>
         <FilterSelect
           name="brand"
           label="品牌"

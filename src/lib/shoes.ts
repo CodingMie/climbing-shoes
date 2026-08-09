@@ -1,4 +1,4 @@
-import { and, asc, avg, count, desc, eq, gte, like, lte } from "drizzle-orm";
+import { and, asc, avg, count, desc, eq, gte, like, lte, sql } from "drizzle-orm";
 import { getDb } from "@/db";
 import {
   brand,
@@ -19,6 +19,7 @@ import {
 } from "@/db/schema";
 
 export type ShoeFilters = {
+  query?: string;
   brandId?: number;
   scenario?: ShoeScenario;
   stiffness?: (typeof SHOE_STIFFNESS)[number];
@@ -53,6 +54,10 @@ export function parseShoeFilters(
   params: Record<string, string | string[] | undefined>,
 ): ShoeFilters {
   return {
+    query:
+      typeof params.q === "string" && params.q.trim()
+        ? params.q.trim()
+        : undefined,
     brandId: pickInt(params.brand),
     scenario: pick(params.scenario, SHOE_SCENARIOS),
     stiffness: pick(params.stiffness, SHOE_STIFFNESS),
@@ -87,6 +92,12 @@ const shoeListColumns = {
 
 export async function listShoes(filters: ShoeFilters = {}) {
   const conditions = [eq(shoe.status, "approved")];
+  if (filters.query) {
+    const pattern = `%${filters.query.replace(/[\\%_]/g, "\\$&")}%`;
+    conditions.push(
+      sql`(lower(${brand.name}) like ${pattern} escape '\\' or lower(${shoe.model}) like ${pattern} escape '\\')`,
+    );
+  }
   if (filters.brandId !== undefined) {
     conditions.push(eq(shoe.brandId, filters.brandId));
   }
