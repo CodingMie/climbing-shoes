@@ -29,9 +29,9 @@ export async function submitReviewAction(
 
   const shoeId = parsePositiveInt(formData.get("shoeId"));
   if (!shoeId) return { ok: false, error: "鞋款不存在" };
-  const shoe = getShoe(shoeId);
+  const shoe = await getShoe(shoeId);
   if (!shoe) return { ok: false, error: "鞋款不存在或未上架" };
-  if (!getFootProfile(session.user.id)) {
+  if (!(await getFootProfile(session.user.id))) {
     return { ok: false, error: "请先完善脚型档案，再提交测评" };
   }
 
@@ -40,7 +40,7 @@ export async function submitReviewAction(
     return { ok: false, error: firstIssueMessage(parsed.error) };
   }
 
-  const reviewId = createReview(session.user.id, shoeId, parsed.data);
+  const reviewId = await createReview(session.user.id, shoeId, parsed.data);
   redirect(`/reviews/${reviewId}`);
 }
 
@@ -52,7 +52,7 @@ export async function updateReviewAction(
 
   const reviewId = parsePositiveInt(formData.get("reviewId"));
   if (!reviewId) return { ok: false, error: "测评不存在" };
-  const existing = getReviewDetail(reviewId);
+  const existing = await getReviewDetail(reviewId);
   if (!existing || existing.userId !== session.user.id) {
     return { ok: false, error: "无权编辑该测评" };
   }
@@ -62,7 +62,7 @@ export async function updateReviewAction(
     return { ok: false, error: firstIssueMessage(parsed.error) };
   }
 
-  updateReview(reviewId, parsed.data);
+  await updateReview(reviewId, parsed.data);
   redirect(`/reviews/${reviewId}`);
 }
 
@@ -74,12 +74,12 @@ export async function deleteReviewAction(
 
   const reviewId = parsePositiveInt(formData.get("reviewId"));
   if (!reviewId) redirect("/shoes");
-  const existing = getReviewDetail(reviewId);
+  const existing = await getReviewDetail(reviewId);
   if (!existing) redirect("/shoes");
   if (existing.userId !== session.user.id) {
     redirect(`/reviews/${reviewId}`);
   }
 
-  deleteReview(reviewId);
+  await deleteReview(reviewId);
   redirect(`/shoes/${existing.shoeId}`);
 }

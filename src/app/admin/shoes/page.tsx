@@ -6,9 +6,9 @@ export const metadata: Metadata = {
   title: "鞋款管理",
 };
 
-export default function AdminShoesPage() {
-  const brands = listBrands();
-  const shoes = listShoes();
+export default async function AdminShoesPage() {
+  const brands = await listBrands();
+  const shoes = await listShoes();
 
   return (
     <div>

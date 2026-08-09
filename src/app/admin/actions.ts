@@ -34,7 +34,7 @@ export async function deleteShoeAction(shoeId: number): Promise<AdminActionResul
   try {
     await requireAdmin();
     const db = getDb();
-    db.delete(shoe).where(eq(shoe.id, shoeId)).run();
+    await db.delete(shoe).where(eq(shoe.id, shoeId)).run();
     revalidatePath("/admin/shoes");
     revalidatePath("/shoes");
     return { ok: true };
@@ -47,11 +47,15 @@ export async function deleteBrandAction(brandId: number): Promise<AdminActionRes
   try {
     await requireAdmin();
     const db = getDb();
-    const shoeCount = db.select({ count: shoe.id }).from(shoe).where(eq(shoe.brandId, brandId)).get();
+    const shoeCount = await db
+      .select({ count: shoe.id })
+      .from(shoe)
+      .where(eq(shoe.brandId, brandId))
+      .get();
     if (shoeCount && shoeCount.count > 0) {
       return { ok: false, error: "该品牌下还有鞋款，无法删除" };
     }
-    db.delete(brand).where(eq(brand.id, brandId)).run();
+    await db.delete(brand).where(eq(brand.id, brandId)).run();
     revalidatePath("/admin/shoes");
     revalidatePath("/admin/brands");
     revalidatePath("/shoes");
@@ -68,7 +72,11 @@ export async function updateShoeStatusAction(
   try {
     await requireAdmin();
     const db = getDb();
-    db.update(shoe).set({ status, updatedAt: new Date() }).where(eq(shoe.id, shoeId)).run();
+    await db
+      .update(shoe)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(shoe.id, shoeId))
+      .run();
     revalidatePath("/admin/shoes");
     revalidatePath("/shoes");
     return { ok: true };
@@ -84,7 +92,7 @@ export async function updateBrandDescriptionAction(
   try {
     await requireAdmin();
     const db = getDb();
-    db.update(brand).set({ description }).where(eq(brand.id, brandId)).run();
+    await db.update(brand).set({ description }).where(eq(brand.id, brandId)).run();
     revalidatePath("/admin/brands");
     return { ok: true };
   } catch (e) {
@@ -99,20 +107,24 @@ export async function updateShoeAction(
   try {
     await requireAdmin();
     const db = getDb();
-    db.update(shoe).set({
-      brandId: data.brandId,
-      model: data.model,
-      price: data.price,
-      scenarios: data.scenarios,
-      stiffness: data.stiffness,
-      width: data.width,
-      level: data.level,
-      downturn: data.downturn,
-      closure: data.closure,
-      material: data.material,
-      images: data.images,
-      updatedAt: new Date(),
-    }).where(eq(shoe.id, shoeId)).run();
+    await db
+      .update(shoe)
+      .set({
+        brandId: data.brandId,
+        model: data.model,
+        price: data.price,
+        scenarios: data.scenarios,
+        stiffness: data.stiffness,
+        width: data.width,
+        level: data.level,
+        downturn: data.downturn,
+        closure: data.closure,
+        material: data.material,
+        images: data.images,
+        updatedAt: new Date(),
+      })
+      .where(eq(shoe.id, shoeId))
+      .run();
     revalidatePath("/admin/shoes");
     revalidatePath(`/admin/shoes/${shoeId}/edit`);
     revalidatePath("/shoes");

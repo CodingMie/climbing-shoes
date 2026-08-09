@@ -50,9 +50,9 @@ export default async function ShoeDetailPage({
   if (!shoe) notFound();
 
   const session = await getSession();
-  const reviews = listShoeReviews(shoe.id);
+  const reviews = await listShoeReviews(shoe.id);
   const userHasReview = session
-    ? hasUserReviewedShoe(session.user.id, shoe.id)
+    ? await hasUserReviewedShoe(session.user.id, shoe.id)
     : false;
 
   const filters = parseShoeFilters(await searchParams);
@@ -72,7 +72,7 @@ export default async function ShoeDetailPage({
   ]
     .filter(Boolean)
     .join(" + ");
-  const stats = getShoeReviewStats(shoe.id, footFilters);
+  const stats = await getShoeReviewStats(shoe.id, footFilters);
   const radarDimensions = stats
     ? stats.dimensions.filter((dimension) => dimension.key !== "overall")
     : [];

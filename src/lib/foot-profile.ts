@@ -5,22 +5,22 @@ import type { FootProfileInput } from "./foot-profile-schema";
 
 export type FootProfile = typeof footProfile.$inferSelect;
 
-export function getFootProfile(userId: string): FootProfile | null {
+export async function getFootProfile(userId: string): Promise<FootProfile | null> {
   return (
-    getDb()
+    (await getDb()
       .select()
       .from(footProfile)
       .where(eq(footProfile.userId, userId))
-      .get() ?? null
+      .get()) ?? null
   );
 }
 
-export function upsertFootProfile(
+export async function upsertFootProfile(
   userId: string,
   input: FootProfileInput,
-): void {
+): Promise<void> {
   const now = new Date();
-  getDb()
+  await getDb()
     .insert(footProfile)
     .values({ userId, ...input, updatedAt: now })
     .onConflictDoUpdate({

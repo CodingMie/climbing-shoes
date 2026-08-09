@@ -18,7 +18,7 @@ export async function generateMetadata({
   params: Promise<RouteParams>;
 }): Promise<Metadata> {
   const { username } = await params;
-  const profileUser = getUserByUsername(username);
+  const profileUser = await getUserByUsername(username);
   if (!profileUser) return { title: "用户不存在" };
   return {
     title: `${profileUser.username ?? profileUser.name} 的主页`,
@@ -31,11 +31,11 @@ export default async function UserHomePage({
   params: Promise<RouteParams>;
 }) {
   const { username } = await params;
-  const profileUser = getUserByUsername(username);
+  const profileUser = await getUserByUsername(username);
   if (!profileUser) notFound();
 
-  const footProfileRow = getFootProfile(profileUser.id);
-  const reviews = listUserReviews(profileUser.id);
+  const footProfileRow = await getFootProfile(profileUser.id);
+  const reviews = await listUserReviews(profileUser.id);
   const displayName = profileUser.username ?? profileUser.name;
 
   const footCells: {

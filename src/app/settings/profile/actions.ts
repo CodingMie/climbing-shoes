@@ -23,6 +23,6 @@ export async function saveFootProfileAction(
   if (!parsed.success) {
     return { ok: false, error: firstIssueMessage(parsed.error) };
   }
-  upsertFootProfile(session.user.id, parsed.data);
+  await upsertFootProfile(session.user.id, parsed.data);
   return { ok: true };
 }

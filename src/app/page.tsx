@@ -7,7 +7,7 @@ import { getSession } from "@/lib/session";
 const LATEST_LIMIT = 8;
 
 export default async function Home() {
-  const latestReviews = listLatestReviews(LATEST_LIMIT);
+  const latestReviews = await listLatestReviews(LATEST_LIMIT);
   const session = await getSession();
 
   return (

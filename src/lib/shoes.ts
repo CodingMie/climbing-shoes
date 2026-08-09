@@ -66,13 +66,11 @@ export function parseShoeFilters(
   };
 }
 
-export function listBrands() {
-  return getDb()
-    .select()
-    .from(brand)
-    .orderBy(asc(brand.name))
-    .all();
+export async function listBrands(): Promise<Brand[]> {
+  return getDb().select().from(brand).orderBy(asc(brand.name)).all();
 }
+
+type Brand = typeof brand.$inferSelect;
 
 const shoeListColumns = {
   id: shoe.id,
@@ -87,7 +85,7 @@ const shoeListColumns = {
   brandName: brand.name,
 };
 
-export function listShoes(filters: ShoeFilters = {}) {
+export async function listShoes(filters: ShoeFilters = {}) {
   const conditions = [eq(shoe.status, "approved")];
   if (filters.brandId !== undefined) {
     conditions.push(eq(shoe.brandId, filters.brandId));
@@ -118,7 +116,7 @@ export function listShoes(filters: ShoeFilters = {}) {
 
   if (footConditions.length === 0) {
     const totalReviewCount = count(review.id);
-    return getDb()
+    const rows = await getDb()
       .select({
         ...shoeListColumns,
         totalReviewCount,
@@ -129,17 +127,17 @@ export function listShoes(filters: ShoeFilters = {}) {
       .where(and(...conditions))
       .groupBy(shoe.id)
       .orderBy(asc(brand.name), asc(shoe.model))
-      .all()
-      .map((row) => ({
-        ...row,
-        matchAvgRating: null,
-        matchReviewerCount: null,
-      }));
+      .all();
+    return rows.map((row) => ({
+      ...row,
+      matchAvgRating: null,
+      matchReviewerCount: null,
+    }));
   }
 
   const matchRating = avg(review.overall);
   const matchCount = count(review.id);
-  return getDb()
+  const rows = await getDb()
     .select({
       ...shoeListColumns,
       matchAvgRating: matchRating,
@@ -153,15 +151,15 @@ export function listShoes(filters: ShoeFilters = {}) {
     .where(and(...conditions, ...footConditions))
     .groupBy(shoe.id)
     .orderBy(desc(matchRating), desc(matchCount), asc(brand.name), asc(shoe.model))
-    .all()
-    .map((row) => ({
-      ...row,
-      matchAvgRating:
-        row.matchAvgRating === null ? null : Number(row.matchAvgRating),
-    }));
+    .all();
+  return rows.map((row) => ({
+    ...row,
+    matchAvgRating:
+      row.matchAvgRating === null ? null : Number(row.matchAvgRating),
+  }));
 }
 
-export type ShoeListItem = ReturnType<typeof listShoes>[number];
+export type ShoeListItem = Awaited<ReturnType<typeof listShoes>>[number];
 
 export function formatShoeTitle(shoeInfo: {
   brandName: string;
@@ -170,8 +168,8 @@ export function formatShoeTitle(shoeInfo: {
   return `${shoeInfo.brandName} ${shoeInfo.model}`;
 }
 
-export function getShoe(id: number) {
-  const row = getDb()
+export async function getShoe(id: number) {
+  const row = await getDb()
     .select({
       id: shoe.id,
       model: shoe.model,

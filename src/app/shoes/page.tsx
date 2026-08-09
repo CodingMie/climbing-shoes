@@ -41,8 +41,8 @@ export default async function ShoesPage({
 }) {
   const params = await searchParams;
   const filters = parseShoeFilters(params);
-  const brands = listBrands();
-  const shoes = listShoes(filters);
+  const brands = await listBrands();
+  const shoes = await listShoes(filters);
   const hasFootFilters =
     filters.footShape !== undefined ||
     filters.footWidth !== undefined ||

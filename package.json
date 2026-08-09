@@ -16,9 +16,9 @@
     "test:e2e": "node scripts/reset-e2e-db.ts && playwright test"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "@phosphor-icons/react": "^2.1.10",
     "better-auth": "^1.6.25",
-    "better-sqlite3": "^13.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
@@ -39,6 +39,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "better-sqlite3": "^13.0.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "15.5.22",

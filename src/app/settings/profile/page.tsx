@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function SettingsProfilePage() {
   const session = await requireUser();
-  const profile = getFootProfile(session.user.id);
+  const profile = await getFootProfile(session.user.id);
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-12">
       <span className="micro-label">FOOT PROFILE</span>

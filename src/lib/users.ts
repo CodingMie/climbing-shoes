@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { user } from "@/db/schema";
 
-export function getUserByUsername(username: string) {
+export async function getUserByUsername(username: string) {
   return (
-    getDb()
+    (await getDb()
       .select({
         id: user.id,
         name: user.name,
@@ -12,8 +12,8 @@ export function getUserByUsername(username: string) {
       })
       .from(user)
       .where(eq(user.username, username))
-      .get() ?? null
+      .get()) ?? null
   );
 }
 
-export type PublicUser = NonNullable<ReturnType<typeof getUserByUsername>>;
+export type PublicUser = NonNullable<Awaited<ReturnType<typeof getUserByUsername>>>;

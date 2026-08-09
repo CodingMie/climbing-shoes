@@ -14,12 +14,13 @@ const seedKeys = new Set(seedShoes.map((s) => `${s.brand}\u0000${s.model}`));
 
 const db = getDb();
 const dbKeys = new Set(
-  db
-    .select({ brandName: brand.name, model: shoe.model })
-    .from(shoe)
-    .innerJoin(brand, eq(shoe.brandId, brand.id))
-    .all()
-    .map((row) => `${row.brandName}\u0000${row.model}`),
+  (
+    await db
+      .select({ brandName: brand.name, model: shoe.model })
+      .from(shoe)
+      .innerJoin(brand, eq(shoe.brandId, brand.id))
+      .all()
+  ).map((row) => `${row.brandName}\u0000${row.model}`),
 );
 
 const inSeedNotDb = seedShoes.filter((s) => !dbKeys.has(`${s.brand}\u0000${s.model}`));

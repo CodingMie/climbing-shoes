@@ -22,7 +22,7 @@ export default async function EditReviewPage({
   const { id } = await params;
   const reviewId = parsePositiveInt(id);
   if (!reviewId) notFound();
-  const review = getReviewDetail(reviewId);
+  const review = await getReviewDetail(reviewId);
   if (!review || review.userId !== session.user.id) notFound();
 
   const shoeTitle = formatShoeTitle({

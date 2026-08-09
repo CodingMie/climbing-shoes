@@ -38,18 +38,21 @@ const footSummaryColumns = {
   streetSize: footProfile.streetSize,
 };
 
-export function getReviewByUserAndShoe(userId: string, shoeId: number) {
+export async function getReviewByUserAndShoe(userId: string, shoeId: number) {
   return (
-    getDb()
+    (await getDb()
       .select()
       .from(review)
       .where(and(eq(review.userId, userId), eq(review.shoeId, shoeId)))
-      .get() ?? null
+      .get()) ?? null
   );
 }
 
-export function hasUserReviewedShoe(userId: string, shoeId: number): boolean {
-  const row = getDb()
+export async function hasUserReviewedShoe(
+  userId: string,
+  shoeId: number,
+): Promise<boolean> {
+  const row = await getDb()
     .select({ id: review.id })
     .from(review)
     .where(and(eq(review.userId, userId), eq(review.shoeId, shoeId)))
@@ -57,7 +60,7 @@ export function hasUserReviewedShoe(userId: string, shoeId: number): boolean {
   return !!row;
 }
 
-export function listShoeReviews(shoeId: number) {
+export async function listShoeReviews(shoeId: number) {
   return getDb()
     .select({
       id: review.id,
@@ -78,7 +81,7 @@ export function listShoeReviews(shoeId: number) {
     .all();
 }
 
-export type ShoeReviewCard = ReturnType<typeof listShoeReviews>[number];
+export type ShoeReviewCard = Awaited<ReturnType<typeof listShoeReviews>>[number];
 
 const shoeColumns = {
   shoeId: shoe.id,
@@ -96,7 +99,7 @@ const reviewCardColumns = {
   createdAt: review.createdAt,
 };
 
-export function listLatestReviews(limit: number) {
+export async function listLatestReviews(limit: number) {
   return getDb()
     .select({
       ...reviewCardColumns,
@@ -115,9 +118,9 @@ export function listLatestReviews(limit: number) {
     .all();
 }
 
-export type LatestReviewCard = ReturnType<typeof listLatestReviews>[number];
+export type LatestReviewCard = Awaited<ReturnType<typeof listLatestReviews>>[number];
 
-export function listUserReviews(userId: string) {
+export async function listUserReviews(userId: string) {
   return getDb()
     .select({
       ...reviewCardColumns,
@@ -133,10 +136,10 @@ export function listUserReviews(userId: string) {
     .all();
 }
 
-export type UserReviewCard = ReturnType<typeof listUserReviews>[number];
+export type UserReviewCard = Awaited<ReturnType<typeof listUserReviews>>[number];
 
-export function getReviewDetail(id: number) {
-  const row = getDb()
+export async function getReviewDetail(id: number) {
+  const row = await getDb()
     .select({
       id: review.id,
       userId: review.userId,
@@ -179,14 +182,14 @@ export function getReviewDetail(id: number) {
   return row ?? null;
 }
 
-export type ReviewDetail = NonNullable<ReturnType<typeof getReviewDetail>>;
+export type ReviewDetail = NonNullable<Awaited<ReturnType<typeof getReviewDetail>>>;
 
-export function createReview(
+export async function createReview(
   userId: string,
   shoeId: number,
   input: ReviewInput,
-): number {
-  const row = getDb()
+): Promise<number> {
+  const row = await getDb()
     .insert(review)
     .values({
       userId,
@@ -198,16 +201,16 @@ export function createReview(
   return row.id;
 }
 
-export function updateReview(id: number, input: ReviewInput): void {
-  getDb()
+export async function updateReview(id: number, input: ReviewInput): Promise<void> {
+  await getDb()
     .update(review)
     .set({ ...reviewValues(input), updatedAt: new Date() })
     .where(eq(review.id, id))
     .run();
 }
 
-export function deleteReview(id: number): void {
-  getDb().delete(review).where(eq(review.id, id)).run();
+export async function deleteReview(id: number): Promise<void> {
+  await getDb().delete(review).where(eq(review.id, id)).run();
 }
 
 export type FootFilters = {
@@ -237,11 +240,11 @@ const FIT_DIMENSIONS = [
   { key: "breathability", label: "透气", options: BREATHABILITIES },
 ] as const;
 
-export function getShoeReviewStats(
+export async function getShoeReviewStats(
   shoeId: number,
   foot: FootFilters = {},
-): ShoeReviewStats | null {
-  const rows = getDb()
+): Promise<ShoeReviewStats | null> {
+  const rawRows = await getDb()
     .select({
       wrap: review.wrap,
       comfort: review.comfort,
@@ -264,13 +267,13 @@ export function getShoeReviewStats(
     .from(review)
     .leftJoin(footProfile, eq(review.userId, footProfile.userId))
     .where(eq(review.shoeId, shoeId))
-    .all()
-    .filter(
-      (row) =>
-        (!foot.footShape || row.footShape === foot.footShape) &&
-        (!foot.footWidth || row.footWidth === foot.footWidth) &&
-        (!foot.footHeel || row.heel === foot.footHeel),
-    );
+    .all();
+  const rows = rawRows.filter(
+    (row) =>
+      (!foot.footShape || row.footShape === foot.footShape) &&
+      (!foot.footWidth || row.footWidth === foot.footWidth) &&
+      (!foot.footHeel || row.heel === foot.footHeel),
+  );
 
   if (rows.length === 0) return null;
 

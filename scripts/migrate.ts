@@ -1,6 +1,12 @@
-import { databasePath } from "../src/db/path.ts";
+import {
+  getDatabaseAuthToken,
+  getDatabaseUrl,
+} from "../src/db/path.ts";
 import { migrateDatabase } from "../src/db/migrate.ts";
 
-const dbPath = databasePath();
-migrateDatabase(dbPath);
-console.log(`migrated: ${dbPath}`);
+const url = getDatabaseUrl();
+await migrateDatabase(url, getDatabaseAuthToken());
+const label = url.startsWith("file:")
+  ? url.replace(/^file:/, "")
+  : `turso (${url})`;
+console.log(`migrated: ${label}`);

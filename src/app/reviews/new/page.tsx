@@ -21,12 +21,12 @@ export default async function NewReviewPage({
   const { shoe } = await searchParams;
   const shoeId = parsePositiveInt(shoe);
   if (!shoeId) notFound();
-  const shoeDetail = getShoe(shoeId);
+  const shoeDetail = await getShoe(shoeId);
   if (!shoeDetail) notFound();
 
   const shoeTitle = formatShoeTitle(shoeDetail);
 
-  if (!getFootProfile(session.user.id)) {
+  if (!(await getFootProfile(session.user.id))) {
     return (
       <main className="mx-auto w-full max-w-3xl px-6 py-12">
         <h1 className="text-[26px] font-black tracking-[-0.01em]">写测评</h1>

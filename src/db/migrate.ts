@@ -1,17 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 
-export function migrateDatabase(dbPath: string): void {
-  fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-  const sqlite = new Database(dbPath);
+export async function migrateDatabase(
+  url: string,
+  authToken?: string,
+): Promise<void> {
+  if (url.startsWith("file:")) {
+    fs.mkdirSync(path.dirname(url.slice("file:".length)), { recursive: true });
+  }
+  const client = createClient({ url, authToken });
   try {
-    migrate(drizzle(sqlite), {
+    await migrate(drizzle(client), {
       migrationsFolder: path.resolve(process.cwd(), "drizzle"),
     });
   } finally {
-    sqlite.close();
+    client.close();
   }
 }

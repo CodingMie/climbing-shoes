@@ -1647,21 +1647,22 @@ function writeSeedImage(shoe: SeedShoe): string {
 const db = getDb();
 
 const brandIds = new Map<string, number>(
-  db.select().from(brand).all().map((row) => [row.name, row.id]),
+  (await db.select().from(brand).all()).map((row) => [row.name, row.id]),
 );
 for (const seedBrand of BRANDS) {
   if (brandIds.has(seedBrand.name)) continue;
-  const row = db.insert(brand).values(seedBrand).returning().get();
+  const row = await db.insert(brand).values(seedBrand).returning().get();
   brandIds.set(seedBrand.name, row.id);
 }
 
 const existingShoeIds = new Map<string, number>(
-  db
-    .select({ id: shoe.id, brandName: brand.name, model: shoe.model })
-    .from(shoe)
-    .innerJoin(brand, eq(shoe.brandId, brand.id))
-    .all()
-    .map((row) => [`${row.brandName}\u0000${row.model}`, row.id]),
+  (
+    await db
+      .select({ id: shoe.id, brandName: brand.name, model: shoe.model })
+      .from(shoe)
+      .innerJoin(brand, eq(shoe.brandId, brand.id))
+      .all()
+  ).map((row) => [`${row.brandName}\u0000${row.model}`, row.id]),
 );
 
 let inserted = 0;
@@ -1690,11 +1691,15 @@ for (const seedShoe of SHOES) {
     status: "approved" as const,
   };
   if (existingShoeIds.has(key)) {
-    db.update(shoe).set(values).where(eq(shoe.id, existingShoeIds.get(key)!)).run();
+    await db
+      .update(shoe)
+      .set(values)
+      .where(eq(shoe.id, existingShoeIds.get(key)!))
+      .run();
     updated += 1;
     continue;
   }
-  db.insert(shoe).values(values).run();
+  await db.insert(shoe).values(values).run();
   inserted += 1;
 }
 

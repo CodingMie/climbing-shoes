@@ -21,7 +21,7 @@ export async function generateMetadata({
   const { id } = await params;
   const reviewId = parsePositiveInt(id);
   if (!reviewId) return { title: "测评不存在" };
-  const review = getReviewDetail(reviewId);
+  const review = await getReviewDetail(reviewId);
   if (!review) return { title: "测评不存在" };
   return {
     title: `${review.brandName} ${review.shoeModel} 的测评`,
@@ -52,7 +52,7 @@ export default async function ReviewDetailPage({
   const { id } = await params;
   const reviewId = parsePositiveInt(id);
   if (!reviewId) notFound();
-  const review = getReviewDetail(reviewId);
+  const review = await getReviewDetail(reviewId);
   if (!review) notFound();
 
   const session = await getSession();

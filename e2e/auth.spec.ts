@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import Database from "better-sqlite3";
+import { createClient } from "@libsql/client";
 import { E2E_DATABASE_PATH } from "../src/db/path";
 
 const PASSWORD = "secret-12345";
@@ -149,11 +149,13 @@ test("密码仅以哈希存储，数据库中不出现明文", async ({ page }) 
     page.getByRole("banner").getByText("climber_hash"),
   ).toBeVisible();
 
-  const db = new Database(E2E_DATABASE_PATH, { readonly: true });
+  const client = createClient({
+    url: `file:${E2E_DATABASE_PATH}`,
+    authToken: undefined,
+  });
   try {
-    const rows = db.prepare("SELECT password FROM account").all() as {
-      password: string | null;
-    }[];
+    const result = await client.execute("SELECT password FROM account");
+    const rows = result.rows as unknown as { password: string | null }[];
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
       expect(row.password).toBeTruthy();
@@ -161,7 +163,7 @@ test("密码仅以哈希存储，数据库中不出现明文", async ({ page }) 
       expect(row.password!.length).toBeGreaterThanOrEqual(32);
     }
   } finally {
-    db.close();
+    client.close();
   }
 });
 

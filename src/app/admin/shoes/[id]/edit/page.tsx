@@ -20,7 +20,7 @@ export default async function EditShoePage({
   if (Number.isNaN(shoeId)) notFound();
 
   const db = getDb();
-  const shoeRow = db
+  const shoeRow = await db
     .select()
     .from(shoe)
     .where(eq(shoe.id, shoeId))
@@ -28,7 +28,7 @@ export default async function EditShoePage({
 
   if (!shoeRow) notFound();
 
-  const brands = listBrands();
+  const brands = await listBrands();
   const brandName = brands.find((b) => b.id === shoeRow.brandId)?.name ?? "";
 
   return (
